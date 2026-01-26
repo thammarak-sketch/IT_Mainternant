@@ -7,7 +7,7 @@
     "dev": "concurrently \"vite\" \"cd server && npm run dev\"",
     "client": "vite",
     "build": "vite build",
-    "start": "node server/index.js",
+    "start": "node server/setup_postgres.js && node server/index.js",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -23,6 +23,7 @@
     "jspdf": "^4.0.0",
     "jspdf-autotable": "^5.0.7",
     "multer": "^2.0.2",
+    "pg": "^8.17.2",
     "react": "^19.2.0",
     "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.0",

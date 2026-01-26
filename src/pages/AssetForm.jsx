@@ -302,7 +302,8 @@ const AssetForm = () => {
                         ประวัติการซ่อมบำรุง
                     </h3>
 
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="min-w-full leading-normal">
                             <thead>
                                 <tr>
@@ -361,6 +362,38 @@ const AssetForm = () => {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-4">
+                        {maintenanceLogs.length === 0 ? (
+                            <div className="text-center py-4 text-gray-500">ไม่พบประวัติการซ่อม</div>
+                        ) : (
+                            maintenanceLogs.map((log) => (
+                                <div key={log.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="font-bold text-gray-800">
+                                            {new Date(log.created_at || log.log_date).toLocaleDateString('th-TH')}
+                                        </div>
+                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                            log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-800'}`}>
+                                            {log.status === 'completed' ? 'เสร็จสิ้น' :
+                                                log.status === 'in_progress' ? 'กำลังดำเนินการ' : 'รอคิว'}
+                                        </span>
+                                    </div>
+                                    <div className="mb-2">
+                                        <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-1 ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50' :
+                                            log.service_type === 'service' ? 'text-blue-700 bg-blue-50' : 'text-orange-700 bg-orange-50'}`}>
+                                            {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
+                                        </span>
+                                        <p className="text-sm text-gray-600">{log.description}</p>
+                                    </div>
+                                    <div className="text-right text-sm font-bold text-gray-700 border-t pt-2 mt-2">
+                                        {log.cost ? `฿${Number(log.cost).toLocaleString()}` : 'ไม่มีค่าใช้จ่าย'}
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
                 </div>
             )}

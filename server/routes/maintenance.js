@@ -99,10 +99,17 @@ router.post('/', async (req, res) => {
         // Send LINE Notification
         try {
             const { sendLineNotification } = require('../services/lineNotify');
-            const notifyMsg = `🔔 มีการแจ้งซ่อมใหม่!\n\nรหัสทรัพย์สิน: ${req.body.asset_code || 'N/A'}\nอาการ: ${description}\nผู้แจ้ง: ${reporter_name}\n\nตรวจสอบรายละเอียดได้ที่เว็บไซต์`;
-            // Note: asset_code might not be available in req.body directly if we looked it up. 
-            // Ideally we query it or pass it. For simplicity, we use what we have or generic message.
-            // Let's improve the message content slightly. 
+
+            // Fetch asset_code for better notification
+            let assetCode = 'N/A';
+            if (finalAssetId) {
+                const [assetRows] = await db.query('SELECT asset_code FROM assets WHERE id = ?', [finalAssetId]);
+                if (assetRows.length > 0) {
+                    assetCode = assetRows[0].asset_code;
+                }
+            }
+
+            const notifyMsg = `🔔 มีการแจ้งซ่อมใหม่!\n\nรหัสทรัพย์สิน: ${assetCode}\nอาการ: ${description}\nผู้แจ้ง: ${reporter_name}\n\nตรวจสอบรายละเอียดได้ที่เว็บไซต์`;
             await sendLineNotification(notifyMsg);
         } catch (notifyErr) {
             console.error('Failed to send notification:', notifyErr.message);

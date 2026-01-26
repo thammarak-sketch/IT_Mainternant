@@ -72,9 +72,22 @@ async function setupDatabase() {
                 assigned_to VARCHAR(255) NOT NULL,
                 assigned_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 return_date TIMESTAMP,
-                notes TEXT
+                notes TEXT,
+                signature TEXT -- New column for signature
             )
         `);
+
+        // Migration: Ensure signature column exists for assignments
+        try {
+            await pool.query(`ALTER TABLE assignments ADD COLUMN signature TEXT`);
+            console.log("Added 'signature' column to assignments table.");
+        } catch (err) {
+            if (err.code === '42701') {
+                console.log("'signature' column already exists in assignments.");
+            } else {
+                console.log("Warning: Could not alter assignments table:", err.message);
+            }
+        }
 
         // Maintenance Logs Table
         await pool.query(`

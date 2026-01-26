@@ -5,6 +5,7 @@
 body {
   background-color: #f3f4f6;
   font-family: 'Kanit', sans-serif;
+  overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
 .bubble-bg {

@@ -1,0 +1,202 @@
+import React, { useEffect, useState } from 'react';
+import { getAssets, deleteAsset } from '../api';
+import { Link } from 'react-router-dom';
+import Swal from 'sweetalert2';
+
+const Home = () => {
+    const [assets, setAssets] = useState([]);
+    const [search, setSearch] = useState('');
+    const [filterType, setFilterType] = useState('');
+    const [filterStatus, setFilterStatus] = useState('');
+
+    const fetchAssets = async () => {
+        try {
+            const { data } = await getAssets({ search, type: filterType, status: filterStatus });
+            setAssets(data);
+        } catch (error) {
+            console.error('Failed to fetch assets', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchAssets();
+    }, [search, filterType, filterStatus]);
+
+    const handleDelete = async (id) => {
+        const result = await Swal.fire({
+            title: 'ยืนยันการลบ?',
+            text: "คุณจะไม่สามารถกู้คืนข้อมูลนี้ได้!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ใช่, ลบเลย!',
+            cancelButtonText: 'ยกเลิก'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await deleteAsset(id);
+                fetchAssets();
+                Swal.fire('ลบเสร็จสิ้น!', 'ลบข้อมูลทรัพย์สินเรียบร้อยแล้ว.', 'success');
+            } catch (error) {
+                Swal.fire('ผิดพลาด', 'ไม่สามารถลบข้อมูลได้', 'error');
+            }
+        }
+    };
+
+    // Helper to get image URL
+    const getImageUrl = (path) => {
+        if (!path) return null;
+        if (path.startsWith('http')) return path;
+        const baseURL = import.meta.env.MODE === 'production' ? '' : 'http://localhost:3000';
+        return baseURL + path;
+    };
+
+    return (
+        <div className="">
+            <div className="container mx-auto px-4 py-8">
+                <div className="flex justify-between items-center mb-6">
+                    <h1 className="text-3xl font-bold text-gray-800">ทะเบียนทรัพย์สินคอมพิวเตอร์</h1>
+                    <Link to="/add" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow transition">
+                        + เพิ่มทรัพย์สินใหม่
+                    </Link>
+                </div>
+
+                {/* Filters */}
+                <div className="bg-white p-4 rounded-lg shadow mb-6 flex flex-wrap gap-4">
+                    <input
+                        type="text"
+                        placeholder="ค้นหา (ชื่อ, รหัส, Serial)..."
+                        className="border p-2 rounded w-full md:w-1/3"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <select
+                        className="border p-2 rounded"
+                        value={filterType}
+                        onChange={(e) => setFilterType(e.target.value)}
+                    >
+                        <option value="">ทุกประเภท</option>
+                        <option value="Laptop">Laptop (โน้ตบุ๊ก)</option>
+                        <option value="PC">PC (คอมพิวเตอร์ตั้งโต๊ะ)</option>
+                        <option value="Monitor">Monitor (จอภาพ)</option>
+                        <option value="Server">Server</option>
+                        <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>
+                        <option value="Software">Software (ซอฟต์แวร์)</option>
+                        <option value="Other">Other (อื่นๆ)</option>
+                    </select>
+                    <select
+                        className="border p-2 rounded"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                    >
+                        <option value="">ทุกสถานะ</option>
+                        <option value="available">ว่าง (Available)</option>
+                        <option value="assigned">ใช้งานอยู่ (Assigned)</option>
+                        <option value="repair">ส่งซ่อม (Repair)</option>
+                        <option value="retired">ตัดจำหน่าย (Retired)</option>
+                        <option value="lost">สูญหาย (Lost)</option>
+                    </select>
+                </div>
+
+                {/* Table */}
+                <div className="bg-white rounded-lg shadow overflow-x-auto">
+                    <table className="min-w-full leading-normal">
+                        <thead>
+                            <tr>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    รูปภาพ
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    รหัสทรัพย์สิน
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    ชื่อ / รุ่น
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    ประเภท
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    สถานะ
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    ราคา
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    จัดการ
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {assets.length === 0 ? (
+                                <tr>
+                                    <td colSpan="7" className="text-center py-4 text-gray-500">ไม่พบข้อมูลทรัพย์สิน</td>
+                                </tr>
+                            ) : (
+                                assets.map((asset) => (
+                                    <tr key={asset.id} className="hover:bg-gray-50">
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <div className="flex-shrink-0 w-16 h-16">
+                                                {asset.image_path ? (
+                                                    <img className="w-full h-full rounded object-cover" src={getImageUrl(asset.image_path)} alt={asset.name} />
+                                                ) : (
+                                                    <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center text-gray-400">
+                                                        <i className="fa-solid fa-image"></i>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <span className="font-mono bg-gray-100 px-2 py-1 rounded">{asset.asset_code}</span>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <div className="flex items-center">
+                                                <div className="ml-3">
+                                                    <p className="text-gray-900 whitespace-no-wrap font-semibold">
+                                                        {asset.name}
+                                                    </p>
+                                                    <p className="text-gray-600 whitespace-no-wrap text-xs">{asset.brand} - {asset.model}</p>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <p className="text-gray-900 whitespace-no-wrap">{asset.type}</p>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <span className={`relative inline-block px-3 py-1 font-semibold leading-tight rounded-full ${asset.status === 'available' ? 'bg-green-100 text-green-900' :
+                                                asset.status === 'assigned' ? 'bg-blue-100 text-blue-900' :
+                                                    asset.status === 'repair' ? 'bg-yellow-100 text-yellow-900' :
+                                                        'bg-gray-100 text-gray-900'
+                                                }`}>
+                                                <span aria-hidden className="absolute inset-0 opacity-50 rounded-full"></span>
+                                                <span className="relative capitalize">
+                                                    {asset.status === 'available' ? 'ว่าง' :
+                                                        asset.status === 'assigned' ? 'ใช้งานอยู่' :
+                                                            asset.status === 'repair' ? 'ส่งซ่อม' :
+                                                                asset.status === 'retired' ? 'ตัดจำหน่าย' :
+                                                                    asset.status === 'lost' ? 'สูญหาย' : asset.status}
+                                                </span>
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <p className="text-gray-900 whitespace-no-wrap">
+                                                ฿{Number(asset.price).toLocaleString()}
+                                            </p>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm text-right">
+                                            <Link to={`/edit/${asset.id}`} className="text-blue-600 hover:text-blue-900 mr-3">แก้ไข</Link>
+                                            <button onClick={() => handleDelete(asset.id)} className="text-red-600 hover:text-red-900">ลบ</button>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default Home;

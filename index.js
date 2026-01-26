@@ -23,9 +23,9 @@ app.use('/api/users', userRoutes);
 
 console.log('Maintenance routes registered at /api/maintenance');
 
-app.get('/', (req, res) => {
-    res.send('Prompt Repository API is running');
-});
+// app.get('/', (req, res) => {
+//     res.send('Prompt Repository API is running');
+// });
 
 // Serve static files from the React app
 const path = require('path');

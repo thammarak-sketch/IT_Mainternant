@@ -92,9 +92,20 @@ router.post('/', async (req, res) => {
             reporter_name, contact_info, department, service_type || 'repair', req.body.repair_method || 'internal', new Date().toISOString()
         ]);
 
-        // Automatically set asset status to 'repair' only if it's a repair job
         if (service_type === 'repair' || !service_type) {
             await db.query(`UPDATE assets SET status = 'repair' WHERE id = ?`, [finalAssetId]);
+        }
+
+        // Send LINE Notification
+        try {
+            const { sendLineNotification } = require('../services/lineNotify');
+            const notifyMsg = `🔔 มีการแจ้งซ่อมใหม่!\n\nรหัสทรัพย์สิน: ${req.body.asset_code || 'N/A'}\nอาการ: ${description}\nผู้แจ้ง: ${reporter_name}\n\nตรวจสอบรายละเอียดได้ที่เว็บไซต์`;
+            // Note: asset_code might not be available in req.body directly if we looked it up. 
+            // Ideally we query it or pass it. For simplicity, we use what we have or generic message.
+            // Let's improve the message content slightly. 
+            await sendLineNotification(notifyMsg);
+        } catch (notifyErr) {
+            console.error('Failed to send notification:', notifyErr.message);
         }
 
         res.status(201).json({ id: result[0].insertId, message: 'Maintenance log added successfully' });

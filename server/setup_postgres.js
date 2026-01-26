@@ -17,7 +17,7 @@ const pool = new Pool({
 
 async function setupDatabase() {
     try {
-        console.log('Initializing PostgreSQL Database on Render...');
+        console.log('Initializing PostgreSQL Database (v2 - Migration Fix)...');
 
         // Users Table
         await pool.query(`
@@ -32,11 +32,16 @@ async function setupDatabase() {
         `);
 
         // Migration: Ensure fullname column exists (for existing tables)
+        // Some older Postgres versions don't support ADD COLUMN IF NOT EXISTS
         try {
-            await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS fullname VARCHAR(255)`);
-            console.log("Checked/Added 'fullname' column to users table.");
+            await pool.query(`ALTER TABLE users ADD COLUMN fullname VARCHAR(255)`);
+            console.log("Added 'fullname' column to users table.");
         } catch (err) {
-            console.log("Note: Could not alter users table (might already exist or other issue):", err.message);
+            if (err.code === '42701') { // duplicate_column error code in Postgres
+                console.log("'fullname' column already exists so skipping.");
+            } else {
+                console.log("Warning: Could not alter users table:", err.message);
+            }
         }
 
         // Assets Table

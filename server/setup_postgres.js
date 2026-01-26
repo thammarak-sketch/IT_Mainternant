@@ -25,6 +25,7 @@ async function setupDatabase() {
                 id SERIAL PRIMARY KEY,
                 username VARCHAR(255) NOT NULL UNIQUE,
                 password VARCHAR(255) NOT NULL,
+                fullname VARCHAR(255),
                 role VARCHAR(50) DEFAULT 'staff',
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )

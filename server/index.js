@@ -23,6 +23,25 @@ app.use('/api/users', userRoutes);
 
 console.log('Maintenance routes registered at /api/maintenance');
 
+// LINE Webhook to capture Group ID
+app.post('/api/webhook', (req, res) => {
+    try {
+        const events = req.body.events;
+        if (events && events.length > 0) {
+            events.forEach(event => {
+                console.log('LINE Event Received:', JSON.stringify(event, null, 2));
+                if (event.source) {
+                    console.log('Source ID:', event.source.groupId || event.source.userId);
+                }
+            });
+        }
+        res.status(200).send('OK');
+    } catch (err) {
+        console.error('Webhook Error:', err);
+        res.status(500).send('Error');
+    }
+});
+
 // app.get('/', (req, res) => {
 //     res.send('Prompt Repository API is running');
 // });

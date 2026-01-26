@@ -31,6 +31,14 @@ async function setupDatabase() {
             )
         `);
 
+        // Migration: Ensure fullname column exists (for existing tables)
+        try {
+            await pool.query(`ALTER TABLE users ADD COLUMN IF NOT EXISTS fullname VARCHAR(255)`);
+            console.log("Checked/Added 'fullname' column to users table.");
+        } catch (err) {
+            console.log("Note: Could not alter users table (might already exist or other issue):", err.message);
+        }
+
         // Assets Table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS assets (

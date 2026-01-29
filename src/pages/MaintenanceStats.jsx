@@ -25,6 +25,28 @@ ChartJS.register(
 const MaintenanceStats = () => {
     const [logs, setLogs] = useState([]);
     const [filter, setFilter] = useState('monthly'); // daily, monthly, yearly
+    // Theme state to update charts on theme toggle
+    const [isDark, setIsDark] = useState(localStorage.getItem('theme') === 'dark');
+
+    useEffect(() => {
+        const handleThemeChange = () => {
+            setIsDark(localStorage.getItem('theme') === 'dark');
+        };
+        // Listen for standard storage events and custom events if you have them
+        window.addEventListener('storage', handleThemeChange);
+        // Polling or observer is overkill, assuming standard reload or user toggle triggers state
+        // For dynamic charts, we might need a context, but local check on render works for now
+        const interval = setInterval(() => {
+            const currentTheme = localStorage.getItem('theme') === 'dark';
+            if (currentTheme !== isDark) setIsDark(currentTheme);
+        }, 1000); // Simple check for theme switch
+
+        return () => {
+            window.removeEventListener('storage', handleThemeChange);
+            clearInterval(interval);
+        };
+    }, [isDark]);
+
 
     useEffect(() => {
         const fetchLogs = async () => {
@@ -66,17 +88,9 @@ const MaintenanceStats = () => {
             }
         });
 
-        // Sort keys
-        const labels = Object.keys(grouped).sort((a, b) => {
-            // Simple string sort works for YYYY and usually MM/YYYY if zero-padded, 
-            // but for robust sorting we might need date parsing. 
-            // For MVP, relying on simple sort or assumes data is relatively sequential.
-            return new Date(a) - new Date(b);
-        });
-
+        const labels = Object.keys(grouped).sort((a, b) => new Date(a) - new Date(b));
         const data = labels.map(label => grouped[label]);
 
-        // Status Counts for Pie Chart
         const statusCounts = {
             pending: logs.filter(l => l.status === 'pending').length,
             in_progress: logs.filter(l => l.status === 'in_progress').length,
@@ -89,14 +103,17 @@ const MaintenanceStats = () => {
         return { labels, data, statusCounts, avgDurationText, total: logs.length, completed: completedCount };
     }, [logs, filter]);
 
+    const chartTextColor = isDark ? '#ffffff' : '#374151';
+    const chartGridColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
+
     const barChartData = {
         labels: processedData.labels,
         datasets: [
             {
                 label: 'จำนวนงานซ่อม (Jobs)',
                 data: processedData.data,
-                backgroundColor: 'rgba(59, 130, 246, 0.6)',
-                borderColor: 'rgba(59, 130, 246, 1)',
+                backgroundColor: isDark ? 'rgba(34, 197, 94, 0.6)' : 'rgba(59, 130, 246, 0.6)',
+                borderColor: isDark ? 'rgba(34, 197, 94, 1)' : 'rgba(59, 130, 246, 1)',
                 borderWidth: 1,
             },
         ],
@@ -122,48 +139,81 @@ const MaintenanceStats = () => {
         ],
     };
 
+    const chartOptions = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'top',
+                labels: { color: chartTextColor }
+            },
+            title: {
+                display: false,
+                text: 'แนวโน้มงานซ่อม',
+                color: chartTextColor
+            }
+        },
+        scales: {
+            x: {
+                ticks: { color: chartTextColor },
+                grid: { color: chartGridColor }
+            },
+            y: {
+                ticks: { color: chartTextColor },
+                grid: { color: chartGridColor }
+            }
+        }
+    };
+
     return (
-        <div className="p-6 bg-gray-50 min-h-screen">
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold text-gray-800">สถิติงานซ่อม (Maintenance Statistics)</h1>
-                <div className="flex bg-white rounded-lg shadow p-1">
-                    {['daily', 'monthly', 'yearly'].map(f => (
-                        <button
-                            key={f}
-                            onClick={() => setFilter(f)}
-                            className={`px-4 py-2 rounded-md transition ${filter === f ? 'bg-blue-600 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
-                        >
-                            {f === 'daily' ? 'รายวัน' : f === 'monthly' ? 'รายเดือน' : 'รายปี'}
-                        </button>
-                    ))}
+        <div className="bg-white dark:bg-slate-900 min-h-screen transition-colors duration-300">
+            <div className="container mx-auto px-4 py-8">
+                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+                    <h1 className="text-3xl font-bold text-gray-800 dark:text-white">สถิติงานซ่อม (Maintenance Statistics)</h1>
+                    <div className="flex bg-gray-100 dark:bg-slate-800 rounded-lg p-1">
+                        {['daily', 'monthly', 'yearly'].map(f => (
+                            <button
+                                key={f}
+                                onClick={() => setFilter(f)}
+                                className={`px-4 py-2 rounded-md transition font-medium ${filter === f
+                                    ? 'bg-white dark:bg-slate-600 text-blue-600 dark:text-white shadow-sm'
+                                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                            >
+                                {f === 'daily' ? 'รายวัน' : f === 'monthly' ? 'รายเดือน' : 'รายปี'}
+                            </button>
+                        ))}
+                    </div>
                 </div>
-            </div>
 
-            {/* KPI Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-blue-500">
-                    <div className="text-gray-500 text-sm uppercase font-semibold">งานซ่อมทั้งหมด (Total)</div>
-                    <div className="text-4xl font-bold text-gray-800 mt-2">{processedData.total}</div>
+                {/* KPI Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow border-l-4 border-blue-500 dark:border-l-[6px] border-gray-100 dark:border-slate-700">
+                        <div className="text-gray-500 dark:text-gray-400 text-sm uppercase font-semibold">งานซ่อมทั้งหมด (Total)</div>
+                        <div className="text-4xl font-bold text-gray-800 dark:text-white mt-2">{processedData.total}</div>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow border-l-4 border-green-500 dark:border-l-[6px] border-gray-100 dark:border-slate-700">
+                        <div className="text-gray-500 dark:text-gray-400 text-sm uppercase font-semibold">งานที่เสร็จสิ้น (Completed)</div>
+                        <div className="text-4xl font-bold text-gray-800 dark:text-white mt-2">{processedData.completed}</div>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow border-l-4 border-indigo-500 dark:border-l-[6px] border-gray-100 dark:border-slate-700">
+                        <div className="text-gray-500 dark:text-gray-400 text-sm uppercase font-semibold">เวลาเฉลี่ยต่องาน (Avg Duration)</div>
+                        <div className="text-3xl font-bold text-gray-800 dark:text-white mt-2">{processedData.avgDurationText}</div>
+                    </div>
                 </div>
-                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-green-500">
-                    <div className="text-gray-500 text-sm uppercase font-semibold">งานที่เสร็จสิ้น (Completed)</div>
-                    <div className="text-4xl font-bold text-gray-800 mt-2">{processedData.completed}</div>
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-md border-l-4 border-indigo-500">
-                    <div className="text-gray-500 text-sm uppercase font-semibold">เวลาเฉลี่ยต่องาน (Avg Duration)</div>
-                    <div className="text-3xl font-bold text-gray-800 mt-2">{processedData.avgDurationText}</div>
-                </div>
-            </div>
 
-            {/* Charts */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="lg:col-span-2 bg-white p-6 rounded-xl shadow-md">
-                    <h2 className="text-xl font-bold text-gray-700 mb-4">แนวโน้มงานซ่อม ({filter})</h2>
-                    <Bar data={barChartData} options={{ responsive: true, plugins: { legend: { position: 'top' } } }} />
-                </div>
-                <div className="bg-white p-6 rounded-xl shadow-md">
-                    <h2 className="text-xl font-bold text-gray-700 mb-4">สถานะงาน (Status)</h2>
-                    <Pie data={pieChartData} />
+                {/* Charts */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div className="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-xl shadow border border-gray-200 dark:border-slate-700">
+                        <h2 className="text-xl font-bold text-gray-700 dark:text-white mb-4">แนวโน้มงานซ่อม ({filter})</h2>
+                        <div className="h-[300px] flex items-center justify-center">
+                            <Bar data={barChartData} options={chartOptions} />
+                        </div>
+                    </div>
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow border border-gray-200 dark:border-slate-700">
+                        <h2 className="text-xl font-bold text-gray-700 dark:text-white mb-4">สถานะงาน (Status)</h2>
+                        <div className="h-[300px] flex items-center justify-center">
+                            <Pie data={pieChartData} options={chartOptions} />
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

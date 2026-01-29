@@ -3,9 +3,10 @@
 @import "tailwindcss";
 
 body {
-  background-color: #f3f4f6;
+  /* background-color: #f3f4f6; Removed to allow Tailwind dark:bg-slate-900 to work */
   font-family: 'Kanit', sans-serif;
-  overflow-x: hidden; /* Prevent horizontal scroll */
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
 }
 
 .bubble-bg {

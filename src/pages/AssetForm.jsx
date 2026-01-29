@@ -165,71 +165,78 @@ const AssetForm = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 pb-12">
             <div className="container mx-auto px-4 py-8">
-                <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-800">
-                        {isEditMode ? 'ข้อมูลทรัพย์สิน' : 'เพิ่มทรัพย์สินใหม่'}
+                <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-lg dark:shadow-green-900/10 p-6 sm:p-8 transition-all border border-gray-100 dark:border-slate-700">
+                    <h2 className="text-2xl font-bold mb-8 text-gray-800 dark:text-white border-b pb-4 dark:border-slate-700 flex items-center gap-3">
+                        {isEditMode ? <i className="fa-solid fa-pen-to-square text-blue-500 dark:text-green-400"></i> : <i className="fa-solid fa-plus-circle text-blue-500 dark:text-green-400"></i>}
+                        {isEditMode ? 'แก้ไขข้อมูลทรัพย์สิน' : 'เพิ่มทรัพย์สินใหม่'}
                     </h2>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-6">
                         {/* Image Upload Section */}
-                        <div className="flex flex-col items-center mb-6">
-                            <div className="w-32 h-32 mb-4 bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-gray-400">
+                        <div className="flex flex-col items-center mb-8 group">
+                            <div className="w-40 h-40 mb-4 bg-gray-100 dark:bg-slate-900 rounded-2xl overflow-hidden flex items-center justify-center border-2 border-dashed border-gray-300 dark:border-slate-600 group-hover:border-blue-500 dark:group-hover:border-green-500 transition-colors shadow-inner">
                                 {preview ? (
                                     <img src={preview} alt="Asset Preview" className="w-full h-full object-cover" />
                                 ) : (
-                                    <span className="text-gray-500 text-sm">ไม่มีรูปภาพ</span>
+                                    <div className="flex flex-col items-center text-gray-400 dark:text-slate-500">
+                                        <i className="fa-solid fa-image text-3xl mb-2"></i>
+                                        <span className="text-sm font-medium">No Image</span>
+                                    </div>
                                 )}
                             </div>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                className="text-sm text-gray-500
-                                file:mr-4 file:py-2 file:px-4
-                                file:rounded-full file:border-0
-                                file:text-sm file:font-semibold
-                                file:bg-blue-50 file:text-blue-700
-                                hover:file:bg-blue-100"
-                            />
+                            <label className="cursor-pointer">
+                                <span className="bg-blue-50 dark:bg-slate-700 text-blue-600 dark:text-green-400 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-100 dark:hover:bg-slate-600 transition-colors">
+                                    <i className="fa-solid fa-camera mr-2"></i>อัพโหลดรูปภาพ
+                                </span>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleFileChange}
+                                    className="hidden"
+                                />
+                            </label>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">รหัสทรัพย์สิน *</label>
-                                <input
-                                    required
-                                    type="text"
-                                    name="asset_code"
-                                    value={formData.asset_code || ''}
-                                    onChange={handleChange}
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="เช่น IT-2024-XXX"
-                                />
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">รหัสทรัพย์สิน *</label>
+                                <div className="relative">
+                                    <i className="fa-solid fa-barcode absolute left-3 top-3 text-gray-400"></i>
+                                    <input
+                                        required
+                                        type="text"
+                                        name="asset_code"
+                                        value={formData.asset_code || ''}
+                                        onChange={handleChange}
+                                        className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500 transition-shadow"
+                                        placeholder="เช่น IT-2024-XXX"
+                                    />
+                                </div>
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อทรัพย์สิน *</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">ชื่อทรัพย์สิน *</label>
                                 <input
                                     required
                                     type="text"
                                     name="name"
                                     value={formData.name || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500 transition-shadow"
                                     placeholder="เช่น MacBook Pro, Dell Monitor"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">ประเภท *</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">ประเภท *</label>
                                 <select
                                     name="type"
                                     value={formData.type || 'Laptop'}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 >
                                     <option value="Laptop">Laptop (โน้ตบุ๊ก)</option>
                                     <option value="PC">PC (คอมพิวเตอร์ตั้งโต๊ะ)</option>
@@ -241,12 +248,12 @@ const AssetForm = () => {
                                 </select>
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">สถานะ</label>
                                 <select
                                     name="status"
                                     value={formData.status || 'available'}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 >
                                     <option value="available">ว่าง (Available)</option>
                                     <option value="assigned">ใช้งานอยู่ (Assigned)</option>
@@ -257,171 +264,174 @@ const AssetForm = () => {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">ยี่ห้อ (Brand)</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">ยี่ห้อ (Brand)</label>
                                 <input
                                     type="text"
                                     name="brand"
                                     value={formData.brand || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">รุ่น (Model)</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">รุ่น (Model)</label>
                                 <input
                                     type="text"
                                     name="model"
                                     value={formData.model || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Serial Number</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">Serial Number</label>
                                 <input
                                     type="text"
                                     name="serial_number"
                                     value={formData.serial_number || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">ราคา (บาท)</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">ราคา (บาท)</label>
                                 <input
                                     type="number"
                                     name="price"
                                     value={formData.price || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ซื้อ</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">วันที่ซื้อ</label>
                                 <input
                                     type="date"
                                     name="purchase_date"
                                     value={formData.purchase_date || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">สถานที่เก็บ / ใช้งาน</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">สถานที่เก็บ / ใช้งาน</label>
                                 <input
                                     type="text"
                                     name="location"
                                     value={formData.location || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                     placeholder="เช่น แผนก IT, ห้อง Server"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">ผู้ใช้งาน / ผู้รับผิดชอบ (Assigned To)</label>
-                                <input
-                                    type="text"
-                                    name="assigned_to"
-                                    value={formData.assigned_to || ''}
-                                    onChange={handleChange}
-                                    className="w-full border p-2 rounded"
-                                    placeholder="ระบุชื่อผู้ใช้งาน"
-                                />
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">ผู้ใช้งาน / ผู้รับผิดชอบ (Assigned To)</label>
+                                <div className="relative">
+                                    <i className="fa-solid fa-user absolute left-3 top-3 text-gray-400"></i>
+                                    <input
+                                        type="text"
+                                        name="assigned_to"
+                                        value={formData.assigned_to || ''}
+                                        onChange={handleChange}
+                                        className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
+                                        placeholder="ระบุชื่อผู้ใช้งาน"
+                                    />
+                                </div>
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2">ลายเซ็นผู้รับมอบ (Signature)</label>
-                            <div className="border rounded-lg p-2 bg-gray-50 inline-block">
+                            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">ลายเซ็นผู้รับมอบ (Signature)</label>
+                            <div className="border border-gray-200 dark:border-slate-600 rounded-lg p-3 bg-gray-50 dark:bg-slate-900 inline-block w-full sm:w-auto">
                                 <SignatureCanvas
                                     ref={sigPad}
-                                    penColor="black"
-                                    canvasProps={{ width: 400, height: 150, className: 'sigCanvas border bg-white rounded' }}
+                                    penColor={localStorage.getItem('theme') === 'dark' ? '#22c55e' : 'black'}
+                                    canvasProps={{ width: 400, height: 150, className: 'sigCanvas bg-white dark:bg-slate-800 rounded border dark:border-slate-700 w-full' }}
                                 />
                             </div>
-                            <div className="mt-1">
-                                <button type="button" onClick={clearSignature} className="text-red-500 text-sm underline">
-                                    ลบ/เซ็นใหม่
+                            <div className="mt-2 text-right sm:text-left">
+                                <button type="button" onClick={clearSignature} className="text-red-500 dark:text-red-400 text-sm hover:underline flex items-center gap-1">
+                                    <i className="fa-solid fa-eraser"></i> ลบ/เซ็นใหม่
                                 </button>
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2">สเปค / รายละเอียดเพิ่มเติม (Spec)</label>
+                            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">สเปค / รายละเอียดเพิ่มเติม (Spec)</label>
                             <textarea
                                 name="spec"
                                 value={formData.spec || ''}
                                 onChange={handleChange}
-                                className="w-full border p-2 rounded h-20 mb-4"
+                                className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500 h-24 mb-4"
                                 placeholder="เช่น CPU i5, RAM 16GB, SSD 512GB"
                             ></textarea>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">วันที่รับเข้า (Received Date)</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">วันที่รับเข้า (Received Date)</label>
                                 <input
                                     type="date"
                                     name="received_date"
                                     value={formData.received_date || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">วันที่คืน (Return Date)</label>
+                                <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">วันที่คืน (Return Date)</label>
                                 <input
                                     type="date"
                                     name="return_date"
                                     value={formData.return_date || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label className="block text-gray-700 text-sm font-bold mb-2">หมายเหตุ</label>
+                            <label className="block text-gray-700 dark:text-gray-300 text-sm font-bold mb-2">หมายเหตุ</label>
                             <textarea
                                 name="notes"
                                 value={formData.notes || ''}
                                 onChange={handleChange}
-                                className="w-full border p-2 rounded h-24"
+                                className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-600 text-gray-900 dark:text-white rounded-lg px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-green-500 h-24"
                             ></textarea>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4">
+                        <div className="flex justify-end gap-3 pt-6 border-t border-gray-100 dark:border-slate-700">
                             {isEditMode && (
                                 <button
                                     type="button"
                                     onClick={handleExportPDF}
-                                    className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700 transition font-bold"
+                                    className="px-5 py-2.5 text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 rounded-lg transition font-bold shadow-md hover:shadow-lg flex items-center gap-2"
                                 >
-                                    <i className="fa-solid fa-file-pdf mr-2"></i>
+                                    <i className="fa-solid fa-file-pdf"></i>
                                     Export PDF
                                 </button>
                             )}
                             <button
                                 type="button"
                                 onClick={() => navigate('/')}
-                                className="px-4 py-2 text-gray-600 bg-gray-200 rounded hover:bg-gray-300 transition font-bold"
+                                className="px-5 py-2.5 text-gray-600 dark:text-gray-300 bg-gray-100 dark:bg-slate-700 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition font-bold"
                             >
                                 ยกเลิก
                             </button>
                             <button
                                 type="submit"
-                                className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-extrabold"
+                                className="px-8 py-2.5 bg-blue-600 dark:bg-green-600 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-green-500 transition font-bold shadow-lg hover:shadow-blue-500/30 dark:hover:shadow-green-500/30"
                             >
                                 {isEditMode ? 'บันทึกการแก้ไข' : 'บันทึกข้อมูล'}
                             </button>
@@ -535,65 +545,67 @@ const AssetForm = () => {
             {/* Maintenance History Section */}
             {
                 isEditMode && (
-                    <div className="max-w-6xl mx-auto mt-8 bg-white rounded-lg shadow-md p-6">
-                        <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
-                            <i className="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>
+                    <div className="max-w-6xl mx-auto mt-8 bg-white dark:bg-slate-800 rounded-xl shadow-lg dark:shadow-green-900/10 p-6 sm:p-8 border border-gray-100 dark:border-slate-700 transition-colors">
+                        <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-white flex items-center gap-2">
+                            <i className="fa-solid fa-clock-rotate-left text-blue-600 dark:text-green-400"></i>
                             ประวัติการซ่อมบำรุง
                         </h3>
 
                         {/* Desktop Table View */}
-                        <div className="hidden md:block overflow-x-auto">
+                        <div className="hidden md:block overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-700">
                             <table className="min-w-full leading-normal">
                                 <thead>
-                                    <tr>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    <tr className="bg-gray-100 dark:bg-slate-900">
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-slate-600 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                             วันที่
                                         </th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-slate-600 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                             ประเภท
                                         </th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-slate-600 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                             รายละเอียด
                                         </th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-slate-600 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                             สถานะ
                                         </th>
-                                        <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                        <th className="px-5 py-3 border-b-2 border-gray-200 dark:border-slate-600 text-left text-xs font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">
                                             ค่าใช้จ่าย
                                         </th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                                     {maintenanceLogs.length === 0 ? (
                                         <tr>
-                                            <td colSpan="5" className="text-center py-4 text-gray-500">ไม่พบประวัติการซ่อม</td>
+                                            <td colSpan="5" className="text-center py-8 text-gray-500 dark:text-gray-400 bg-white dark:bg-slate-800">
+                                                ไม่พบประวัติการซ่อม
+                                            </td>
                                         </tr>
                                     ) : (
                                         maintenanceLogs.map((log) => (
-                                            <tr key={log.id}>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <tr key={log.id} className="bg-white dark:bg-slate-800 hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors">
+                                                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300">
                                                     {new Date(log.created_at || log.log_date).toLocaleDateString('th-TH')}
                                                 </td>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                    <span className={`px-2 py-1 rounded text-xs font-bold ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50' :
-                                                        log.service_type === 'service' ? 'text-blue-700 bg-blue-50' : 'text-orange-700 bg-orange-50'
+                                                <td className="px-5 py-4 text-sm">
+                                                    <span className={`px-2 py-1 rounded text-xs font-bold border ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' :
+                                                        log.service_type === 'service' ? 'text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' : 'text-orange-700 bg-orange-50 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800'
                                                         }`}>
                                                         {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
                                                     </span>
                                                 </td>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                                <td className="px-5 py-4 text-sm text-gray-600 dark:text-gray-300">
                                                     <div className="max-w-xs truncate">{log.description}</div>
                                                 </td>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                        log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                                                            'bg-gray-100 text-gray-800'
+                                                <td className="px-5 py-4 text-sm">
+                                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${log.status === 'completed' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                                                        log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800' :
+                                                            'bg-gray-100 text-gray-800 border-gray-200 dark:bg-slate-700 dark:text-gray-400 dark:border-slate-600'
                                                         }`}>
                                                         {log.status === 'completed' ? 'เสร็จสิ้น' :
                                                             log.status === 'in_progress' ? 'กำลังดำเนินการ' : 'รอคิว'}
                                                     </span>
                                                 </td>
-                                                <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                                <td className="px-5 py-4 text-sm text-gray-700 dark:text-gray-300 font-mono">
                                                     {log.cost ? `฿${Number(log.cost).toLocaleString()}` : '-'}
                                                 </td>
                                             </tr>
@@ -606,28 +618,28 @@ const AssetForm = () => {
                         {/* Mobile Card View */}
                         <div className="md:hidden space-y-4">
                             {maintenanceLogs.length === 0 ? (
-                                <div className="text-center py-4 text-gray-500">ไม่พบประวัติการซ่อม</div>
+                                <div className="text-center py-4 text-gray-500 dark:text-gray-400">ไม่พบประวัติการซ่อม</div>
                             ) : (
                                 maintenanceLogs.map((log) => (
-                                    <div key={log.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                                    <div key={log.id} className="bg-gray-50 dark:bg-slate-900 p-4 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
                                         <div className="flex justify-between items-start mb-2">
-                                            <div className="font-bold text-gray-800">
+                                            <div className="font-bold text-gray-800 dark:text-gray-200">
                                                 {new Date(log.created_at || log.log_date).toLocaleDateString('th-TH')}
                                             </div>
-                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-800'}`}>
+                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${log.status === 'completed' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                                                log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800' : 'bg-gray-200 text-gray-800 border-gray-300 dark:bg-slate-700 dark:text-gray-400 dark:border-slate-600'}`}>
                                                 {log.status === 'completed' ? 'เสร็จสิ้น' :
                                                     log.status === 'in_progress' ? 'กำลังดำเนินการ' : 'รอคิว'}
                                             </span>
                                         </div>
                                         <div className="mb-2">
-                                            <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-1 ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50' :
-                                                log.service_type === 'service' ? 'text-blue-700 bg-blue-50' : 'text-orange-700 bg-orange-50'}`}>
+                                            <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-1 border ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' :
+                                                log.service_type === 'service' ? 'text-blue-700 bg-blue-50 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' : 'text-orange-700 bg-orange-50 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800'}`}>
                                                 {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
                                             </span>
-                                            <p className="text-sm text-gray-600">{log.description}</p>
+                                            <p className="text-sm text-gray-600 dark:text-gray-300">{log.description}</p>
                                         </div>
-                                        <div className="text-right text-sm font-bold text-gray-700 border-t pt-2 mt-2">
+                                        <div className="text-right text-sm font-bold text-gray-700 dark:text-gray-200 border-t border-gray-200 dark:border-slate-700 pt-2 mt-2">
                                             {log.cost ? `฿${Number(log.cost).toLocaleString()}` : 'ไม่มีค่าใช้จ่าย'}
                                         </div>
                                     </div>

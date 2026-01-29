@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createAsset, getAsset, updateAsset, getMaintenanceLogs } from '../api';
@@ -90,72 +90,81 @@ const AssetForm = () => {
     };
 
     const handleExportPDF = () => {
-        const doc = new jsPDF();
+        try {
+            console.log("Generating PDF...");
+            // Initialize jsPDF with named import if needed, or default. 
+            // Since we changed import to { jsPDF }, new jsPDF() is correct.
+            const doc = new jsPDF();
 
-        // Add Header
-        doc.setFontSize(22);
-        doc.text("Asset Handover Form / แบบฟอร์มส่งมอบทรัพย์สิน", 105, 20, { align: 'center' });
+            // Add Header
+            doc.setFontSize(22);
+            doc.text("Asset Handover Form / แบบฟอร์มส่งมอบทรัพย์สิน", 105, 20, { align: 'center' });
 
-        doc.setFontSize(12);
-        doc.text(`Date / วันที่: ${new Date().toLocaleDateString('th-TH')}`, 14, 30);
+            doc.setFontSize(12);
+            doc.text(`Date / วันที่: ${new Date().toLocaleDateString('th-TH')}`, 14, 30);
 
-        // Add Image if exists
-        let yPos = 40;
-        if (preview) {
-            try {
-                // Determine image format (roughly)
-                const imgFormat = preview.includes('png') ? 'PNG' : 'JPEG';
-                // Calculate aspect ratio to fit in 60x60 box
-                doc.addImage(preview, imgFormat, 150, 35, 40, 40);
-            } catch (err) {
-                console.error("Error adding image to PDF", err);
+            // Add Image if exists
+            let yPos = 40;
+            if (preview) {
+                try {
+                    // Determine image format (roughly)
+                    const imgFormat = preview.includes('png') ? 'PNG' : 'JPEG';
+                    // Calculate aspect ratio to fit in 60x60 box
+                    doc.addImage(preview, imgFormat, 150, 35, 40, 40);
+                } catch (err) {
+                    console.error("Error adding image to PDF", err);
+                }
             }
+
+            // Table Data
+            const tableData = [
+                ['Asset Code / รหัส', formData.asset_code || '-'],
+                ['Name / ชื่อทรัพย์สิน', formData.name || '-'],
+                ['Type / ประเภท', formData.type || '-'],
+                ['Brand / ยี่ห้อ', formData.brand || '-'],
+                ['Model / รุ่น', formData.model || '-'],
+                ['Serial Number', formData.serial_number || '-'],
+                ['Price / ราคา', formData.price ? `${Number(formData.price).toLocaleString()} THB` : '-'],
+                ['Purchase Date / วันที่ซื้อ', formData.purchase_date || '-'],
+                ['Location / สถานที่', formData.location || '-'],
+                ['Spec / สเปค', formData.spec || '-'],
+                ['Received Date / วันที่รับ', formData.received_date || '-'],
+                ['Return Date / วันที่คืน', formData.return_date || '-'],
+                ['Status / สถานะ', formData.status || '-'],
+                ['Notes / หมายเหตุ', formData.notes || '-'],
+            ];
+
+            doc.autoTable({
+                startY: yPos + 5,
+                head: [['Field / หัวข้อ', 'Detail / รายละเอียด']],
+                body: tableData,
+                theme: 'grid',
+                headStyles: { fillColor: [66, 66, 66] },
+            });
+
+            // Signature Section
+            yPos = doc.lastAutoTable.finalY + 20;
+
+            doc.text("Examined & Received By / ผู้ตรวจสอบและรับมอบ:", 14, yPos);
+            doc.text(`Name / ชื่อ: ${formData.assigned_to || '................................................'}`, 14, yPos + 10);
+
+            if (formData.signature) {
+                doc.addImage(formData.signature, 'PNG', 20, yPos + 15, 60, 30);
+                doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
+            } else if (sigPad.current && !sigPad.current.isEmpty()) {
+                doc.addImage(sigPad.current.toDataURL(), 'PNG', 20, yPos + 15, 60, 30);
+                doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
+            } else {
+                doc.text("................................................", 20, yPos + 40);
+                doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
+            }
+
+            doc.save(`Asset_Handover_${formData.asset_code || 'New'}.pdf`);
+            console.log("PDF Generated Successfully");
+        } catch (error) {
+            console.error("PDF Generation Error:", error);
+            Swal.fire('Error', 'Could not generate PDF. Please check console.', 'error');
         }
-
-        // Table Data
-        const tableData = [
-            ['Asset Code / รหัส', formData.asset_code || '-'],
-            ['Name / ชื่อทรัพย์สิน', formData.name || '-'],
-            ['Type / ประเภท', formData.type || '-'],
-            ['Brand / ยี่ห้อ', formData.brand || '-'],
-            ['Model / รุ่น', formData.model || '-'],
-            ['Serial Number', formData.serial_number || '-'],
-            ['Price / ราคา', formData.price ? `${Number(formData.price).toLocaleString()} THB` : '-'],
-            ['Purchase Date / วันที่ซื้อ', formData.purchase_date || '-'],
-            ['Location / สถานที่', formData.location || '-'],
-            ['Spec / สเปค', formData.spec || '-'],
-            ['Received Date / วันที่รับ', formData.received_date || '-'],
-            ['Return Date / วันที่คืน', formData.return_date || '-'],
-            ['Status / สถานะ', formData.status || '-'],
-            ['Notes / หมายเหตุ', formData.notes || '-'],
-        ];
-
-        doc.autoTable({
-            startY: yPos + 5,
-            head: [['Field / หัวข้อ', 'Detail / รายละเอียด']],
-            body: tableData,
-            theme: 'grid',
-            headStyles: { fillColor: [66, 66, 66] },
-        });
-
-        // Signature Section
-        yPos = doc.lastAutoTable.finalY + 20;
-
-        doc.text("Examined & Received By / ผู้ตรวจสอบและรับมอบ:", 14, yPos);
-        doc.text(`Name / ชื่อ: ${formData.assigned_to || '................................................'}`, 14, yPos + 10);
-
-        if (formData.signature) {
-            doc.addImage(formData.signature, 'PNG', 20, yPos + 15, 60, 30);
-            doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
-        } else if (sigPad.current && !sigPad.current.isEmpty()) {
-            doc.addImage(sigPad.current.toDataURL(), 'PNG', 20, yPos + 15, 60, 30);
-            doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
-        } else {
-            doc.text("................................................", 20, yPos + 40);
-            doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
-        }
-
-        doc.save(`Asset_Handover_${formData.asset_code || 'New'}.pdf`);
     };
 
     const handleSubmit = async (e) => {

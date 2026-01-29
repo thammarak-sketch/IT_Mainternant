@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createAsset, getAsset, updateAsset, getMaintenanceLogs } from '../api';
 import Swal from 'sweetalert2';
@@ -117,6 +117,7 @@ const AssetForm = () => {
             }
 
             // Table Data
+            // Table Data
             const tableData = [
                 ['Asset Code / รหัส', formData.asset_code || '-'],
                 ['Name / ชื่อทรัพย์สิน', formData.name || '-'],
@@ -134,12 +135,14 @@ const AssetForm = () => {
                 ['Notes / หมายเหตุ', formData.notes || '-'],
             ];
 
-            doc.autoTable({
+            autoTable(doc, {
                 startY: yPos + 5,
                 head: [['Field / หัวข้อ', 'Detail / รายละเอียด']],
                 body: tableData,
                 theme: 'grid',
                 headStyles: { fillColor: [66, 66, 66] },
+                // Use a default font that supports basic latin. Thai might still be garbage without custom font.
+                styles: { font: 'helvetica' }
             });
 
             // Signature Section

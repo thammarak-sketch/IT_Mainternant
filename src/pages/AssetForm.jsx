@@ -108,14 +108,24 @@ const AssetForm = () => {
                 return;
             }
 
-            const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true });
+            // Temporarily set width to 210mm in pixels (approx 794px at 96dpi) for consistent capture
+            const canvas = await html2canvas(printRef.current, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: 794
+            });
             const imgData = canvas.toDataURL('image/png');
 
             const doc = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = doc.internal.pageSize.getHeight();
 
-            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            // Calculate height to maintain aspect ratio
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const pdfImageHeight = (pdfWidth * imgHeight) / imgWidth;
+
+            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfImageHeight);
             doc.save(`Asset_Handover_${formData.asset_code || 'New'}.pdf`);
             console.log("PDF Generated Successfully");
         } catch (error) {
@@ -362,7 +372,7 @@ const AssetForm = () => {
                         </div>
 
                         <div className="bg-blue-50 p-4 rounded-lg flex flex-wrap gap-6 items-center border border-blue-100">
-                            <label className="text-sm font-bold text-blue-800">เมลย์ใช้กับ:</label>
+                            <label className="text-sm font-bold text-blue-800">เมลย์ที่ผูกกับเครื่อง:</label>
                             <label className="flex items-center gap-3 cursor-pointer group">
                                 <input
                                     type="checkbox"
@@ -476,7 +486,7 @@ const AssetForm = () => {
 
             {/* Hidden Print Template */}
             <div style={{ position: 'absolute', top: -10000, left: -10000 }}>
-                <div ref={printRef} className="w-[210mm] min-h-[297mm] p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
+                <div ref={printRef} className="w-[210mm] h-auto p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold mb-2">Asset Handover Form</h1>

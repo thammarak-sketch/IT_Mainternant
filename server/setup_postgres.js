@@ -147,6 +147,9 @@ async function setupDatabase() {
             CREATE TABLE IF NOT EXISTS registration_emails (
                 id SERIAL PRIMARY KEY,
                 email VARCHAR(255) NOT NULL UNIQUE,
+                fullname VARCHAR(255),
+                position VARCHAR(100),
+                department VARCHAR(100),
                 is_pc INTEGER DEFAULT 0,
                 is_mobile INTEGER DEFAULT 0,
                 notes TEXT,

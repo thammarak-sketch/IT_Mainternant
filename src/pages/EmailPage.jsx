@@ -5,7 +5,7 @@ import Swal from 'sweetalert2';
 const EmailPage = () => {
     const [emails, setEmails] = useState([]);
     const [search, setSearch] = useState('');
-    const [formData, setFormData] = useState({ email: '', is_pc: 0, is_mobile: 0, notes: '' });
+    const [formData, setFormData] = useState({ email: '', fullname: '', position: '', department: '', is_pc: 0, is_mobile: 0, notes: '' });
     const [editingId, setEditingId] = useState(null);
 
     const fetchEmails = async () => {
@@ -39,7 +39,7 @@ const EmailPage = () => {
                 await createRegistrationEmail(formData);
                 Swal.fire('สำเร็จ', 'เพิ่มทะเบียนเมลเรียบร้อยแล้ว', 'success');
             }
-            setFormData({ email: '', is_pc: 0, is_mobile: 0, notes: '' });
+            setFormData({ email: '', fullname: '', position: '', department: '', is_pc: 0, is_mobile: 0, notes: '' });
             setEditingId(null);
             fetchEmails();
         } catch (error) {
@@ -50,6 +50,9 @@ const EmailPage = () => {
     const handleEdit = (item) => {
         setFormData({
             email: item.email,
+            fullname: item.fullname || '',
+            position: item.position || '',
+            department: item.department || '',
             is_pc: item.is_pc,
             is_mobile: item.is_mobile,
             notes: item.notes || ''
@@ -83,7 +86,7 @@ const EmailPage = () => {
 
     const cancelEdit = () => {
         setEditingId(null);
-        setFormData({ email: '', is_pc: 0, is_mobile: 0, notes: '' });
+        setFormData({ email: '', fullname: '', position: '', department: '', is_pc: 0, is_mobile: 0, notes: '' });
     };
 
     return (
@@ -111,6 +114,43 @@ const EmailPage = () => {
                                     placeholder="example@email.com"
                                     required
                                 />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-1">ชื่อ-นามสกุล (Full Name)</label>
+                                <input
+                                    type="text"
+                                    name="fullname"
+                                    value={formData.fullname}
+                                    onChange={handleChange}
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border transition"
+                                    placeholder="เช่น สมชาย ใจดี"
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">ตำแหน่ง (Position)</label>
+                                    <input
+                                        type="text"
+                                        name="position"
+                                        value={formData.position}
+                                        onChange={handleChange}
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border transition text-sm"
+                                        placeholder="เช่น Manager"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-bold text-gray-700 mb-1">แผนก (Department)</label>
+                                    <input
+                                        type="text"
+                                        name="department"
+                                        value={formData.department}
+                                        onChange={handleChange}
+                                        className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border transition text-sm"
+                                        placeholder="เช่น IT"
+                                    />
+                                </div>
                             </div>
 
                             <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
@@ -182,7 +222,7 @@ const EmailPage = () => {
                                 </span>
                                 <input
                                     type="text"
-                                    placeholder="ค้นหาอีเมล หรือหมายเหตุ..."
+                                    placeholder="ค้นหาอีเมล, ชื่อ, ตำแหน่ง หรือแผนก..."
                                     className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 transition sm:text-sm"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
@@ -194,7 +234,7 @@ const EmailPage = () => {
                             <table className="min-w-full divide-y divide-gray-200">
                                 <thead className="bg-gray-50">
                                     <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">อีเมล (Email)</th>
+                                        <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">ชื่อ / อีเมล</th>
                                         <th className="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">การใช้งาน</th>
                                         <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">หมายเหตุ</th>
                                         <th className="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">จัดการ</th>
@@ -209,8 +249,13 @@ const EmailPage = () => {
                                         emails.map((item) => (
                                             <tr key={item.id} className="hover:bg-blue-50 transition-colors">
                                                 <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm font-semibold text-blue-600">{item.email}</div>
-                                                    <div className="text-xs text-gray-400">{new Date(item.created_at).toLocaleDateString('th-TH')}</div>
+                                                    <div className="text-sm font-bold text-gray-900">{item.fullname || '-'}</div>
+                                                    <div className="text-xs text-blue-600 font-medium">{item.email}</div>
+                                                    <div className="flex gap-2 mt-1">
+                                                        <span className="text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{item.position || 'ไม่ระบุตำแหน่ง'}</span>
+                                                        <span className="text-[10px] bg-blue-50 px-1.5 py-0.5 rounded text-blue-600 font-medium">{item.department || 'ไม่ระบุแผนก'}</span>
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-400 mt-1">{new Date(item.created_at).toLocaleDateString('th-TH')}</div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-center">
                                                     <div className="flex justify-center gap-2">

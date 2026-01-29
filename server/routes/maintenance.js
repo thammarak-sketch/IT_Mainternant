@@ -8,7 +8,7 @@ router.get('/', async (req, res) => {
         const { date } = req.query;
         const params = [];
         let query = `
-            SELECT m.*, a.asset_code, a.name as asset_name, a.type as asset_type
+            SELECT m.*, a.asset_code, a.name as asset_name, a.type as asset_type, a.email, a.is_pc, a.is_mobile
             FROM maintenance_logs m
             LEFT JOIN assets a ON m.asset_id = a.id
         `;
@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
 // CREATE maintenance log
 router.post('/', async (req, res) => {
     try {
-        const { asset_id, description, cost, log_date, reporter_name, contact_info, department, service_type, new_employee_name, asset_type } = req.body;
+        const { asset_id, description, cost, log_date, reporter_name, contact_info, department, service_type, new_employee_name, asset_type, email, is_pc, is_mobile } = req.body;
 
         let finalAssetId = asset_id;
 
@@ -68,12 +68,13 @@ router.post('/', async (req, res) => {
             const newAssetName = `New ${asset_type} for ${new_employee_name}`;
 
             const assetSql = `
-                INSERT INTO assets (asset_code, name, type, brand, model, status, location, purchase_date)
-                VALUES (?, ?, ?, 'Generic', 'Generic', 'assigned', ?, ?)
+                INSERT INTO assets (asset_code, name, type, brand, model, status, location, purchase_date, email, is_pc, is_mobile)
+                VALUES (?, ?, ?, 'Generic', 'Generic', 'assigned', ?, ?, ?, ?, ?)
             `;
 
             const assetResult = await db.query(assetSql, [
-                newAssetCode, newAssetName, asset_type, department || 'IT', new Date().toISOString()
+                newAssetCode, newAssetName, asset_type, department || 'IT', new Date().toISOString(),
+                email || null, is_pc ? 1 : 0, is_mobile ? 1 : 0
             ]);
 
             finalAssetId = assetResult[0].insertId;

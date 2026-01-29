@@ -21,7 +21,10 @@ const PublicReport = () => {
         cost: 0,
         // New Service Fields
         new_employee_name: '',
-        asset_type: 'Laptop'
+        asset_type: 'Laptop',
+        email: '',
+        is_pc: 0,
+        is_mobile: 0
     });
 
     const departments = [
@@ -105,7 +108,10 @@ const PublicReport = () => {
                 department: '',
                 cost: 0,
                 new_employee_name: '',
-                asset_type: 'Laptop'
+                asset_type: 'Laptop',
+                email: '',
+                is_pc: 0,
+                is_mobile: 0
             });
             setSearchTerm('');
             setServiceType('repair');
@@ -200,6 +206,41 @@ const PublicReport = () => {
                                                 <option value="Monitor">Monitor (จอภาพ)</option>
                                                 <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>
                                             </select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                                        <div>
+                                            <label className="block text-gray-700 font-bold mb-2">อีเมล (Email)</label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                className="w-full border p-2 rounded focus:ring-2 focus:ring-green-500"
+                                                placeholder="example@email.com"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-6 pt-8">
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <input
+                                                    type="checkbox"
+                                                    name="is_pc"
+                                                    checked={formData.is_pc === 1}
+                                                    onChange={(e) => setFormData(prev => ({ ...prev, is_pc: e.target.checked ? 1 : 0 }))}
+                                                    className="w-5 h-5 rounded text-green-600 focus:ring-green-500 cursor-pointer"
+                                                />
+                                                <span className="text-gray-700 font-medium group-hover:text-green-600 transition-colors">PC</span>
+                                            </label>
+                                            <label className="flex items-center gap-2 cursor-pointer group">
+                                                <input
+                                                    type="checkbox"
+                                                    name="is_mobile"
+                                                    checked={formData.is_mobile === 1}
+                                                    onChange={(e) => setFormData(prev => ({ ...prev, is_mobile: e.target.checked ? 1 : 0 }))}
+                                                    className="w-5 h-5 rounded text-green-600 focus:ring-green-500 cursor-pointer"
+                                                />
+                                                <span className="text-gray-700 font-medium group-hover:text-green-600 transition-colors">Phone / Tablet</span>
+                                            </label>
                                         </div>
                                     </div>
                                     <p className="text-xs text-green-600 mt-2">* ระบบจะทำการสร้างทะเบียนทรัพย์สินใหม่อัตโนมัติ</p>

@@ -18,6 +18,9 @@ const MaintenanceForm = () => {
         // New Service Fields
         new_employee_name: '',
         asset_type: 'Laptop', // Default type for new setup
+        email: '',
+        is_pc: 0,
+        is_mobile: 0,
         repair_method: 'internal'
     });
     const [hasCost, setHasCost] = useState(false);
@@ -190,6 +193,39 @@ const MaintenanceForm = () => {
                                         <option value="Monitor">Monitor (จอภาพ)</option>
                                         <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>
                                     </select>
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
+                                        placeholder="example@email.com"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-6 pt-2">
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            name="is_pc"
+                                            checked={formData.is_pc === 1}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, is_pc: e.target.checked ? 1 : 0 }))}
+                                            className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        />
+                                        <span className="text-gray-700 font-medium group-hover:text-blue-600 transition-colors">PC</span>
+                                    </label>
+                                    <label className="flex items-center gap-2 cursor-pointer group">
+                                        <input
+                                            type="checkbox"
+                                            name="is_mobile"
+                                            checked={formData.is_mobile === 1}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, is_mobile: e.target.checked ? 1 : 0 }))}
+                                            className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                        />
+                                        <span className="text-gray-700 font-medium group-hover:text-blue-600 transition-colors">Phone / Tablet</span>
+                                    </label>
                                 </div>
                             </div>
                             <p className="text-xs text-blue-600 mt-2">* ระบบจะสร้างทะเบียนทรัพย์สินใหม่อัตโนมัติในสถานะ 'Assigned'</p>

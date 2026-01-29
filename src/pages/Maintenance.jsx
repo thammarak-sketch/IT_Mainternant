@@ -414,6 +414,8 @@ const Maintenance = () => {
             ['ค่าใช้จ่าย', log.cost ? `${Number(log.cost).toLocaleString()} บาท` : '-'],
             ['เริ่มดำเนินการ', log.started_at ? new Date(log.started_at).toLocaleString() : '-'],
             ['เสร็จสิ้น', log.completed_at ? new Date(log.completed_at).toLocaleString() : '-'],
+            ['อีเมล', log.email || '-'],
+            ['หมวดหมู่', `${log.is_pc === 1 ? '[✓] PC ' : ''}${log.is_mobile === 1 ? '[✓] Phone/Tablet' : ''}${!log.is_pc && !log.is_mobile ? '-' : ''}`],
             ['ระยะเวลา', calculateDuration(log.started_at, log.completed_at)]
         ];
 

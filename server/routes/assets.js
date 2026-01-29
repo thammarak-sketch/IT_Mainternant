@@ -91,7 +91,7 @@ router.get('/:id', async (req, res) => {
 // CREATE asset
 router.post('/', upload.single('image'), async (req, res) => {
     try {
-        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date } = req.body;
+        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile } = req.body;
 
         // Handle image path
         const image_path = req.file ? `/uploads/${req.file.filename}` : null;
@@ -102,15 +102,16 @@ router.post('/', upload.single('image'), async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO assets (asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, image_path, assigned_to, signature, spec, received_date, return_date)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO assets (asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, image_path, assigned_to, signature, spec, received_date, return_date, email, is_pc, is_mobile)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const result = await db.query(sql, [
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
             status || 'available', sanitize(location), sanitize(notes), image_path,
             sanitize(req.body.assigned_to), sanitize(req.body.signature),
-            sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date)
+            sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
+            sanitize(email), is_pc ? 1 : 0, is_mobile ? 1 : 0
         ]);
 
         res.status(201).json({ id: result[0].insertId, message: 'Asset created successfully', image_path });
@@ -126,7 +127,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 // UPDATE asset
 router.put('/:id', upload.single('image'), async (req, res) => {
     try {
-        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date } = req.body;
+        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile } = req.body;
 
         let updateImageSql = '';
         const params = [
@@ -134,7 +135,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
             sanitize(status), sanitize(location), sanitize(notes),
             sanitize(req.body.assigned_to), sanitize(req.body.signature),
-            sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date)
+            sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
+            sanitize(email), is_pc ? 1 : 0, is_mobile ? 1 : 0
         ];
 
         if (req.file) {
@@ -144,7 +146,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 
         const sql = `
             UPDATE assets 
-            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=?, assigned_to=?, signature=?, spec=?, received_date=?, return_date=? ${updateImageSql}
+            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=?, assigned_to=?, signature=?, spec=?, received_date=?, return_date=?, email=?, is_pc=?, is_mobile=? ${updateImageSql}
             WHERE id = ?
         `;
 

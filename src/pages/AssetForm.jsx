@@ -25,7 +25,10 @@ const AssetForm = () => {
         notes: '',
         spec: '',
         received_date: '',
-        return_date: ''
+        return_date: '',
+        email: '',
+        is_pc: 0,
+        is_mobile: 0
     });
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -41,7 +44,9 @@ const AssetForm = () => {
                         ...data,
                         purchase_date: data.purchase_date ? data.purchase_date.split('T')[0] : '',
                         received_date: data.received_date ? data.received_date.split('T')[0] : '',
-                        return_date: data.return_date ? data.return_date.split('T')[0] : ''
+                        return_date: data.return_date ? data.return_date.split('T')[0] : '',
+                        is_pc: data.is_pc || 0,
+                        is_mobile: data.is_mobile || 0
                     };
                     setFormData(formattedData);
                     if (data.image_path) {
@@ -80,8 +85,11 @@ const AssetForm = () => {
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: type === 'checkbox' ? (checked ? 1 : 0) : value
+        }));
     };
 
     const handleFileChange = (e) => {
@@ -168,7 +176,8 @@ const AssetForm = () => {
         <div className="min-h-screen bg-gray-50">
             <div className="container mx-auto px-4 py-8">
                 <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                    <h2 className="text-2xl md:text-3xl font-extrabold mb-6 text-gray-800 border-b pb-4 flex items-center gap-3">
+                        <i className={`fa-solid ${isEditMode ? 'fa-pen-to-square text-blue-600' : 'fa-plus-circle text-green-600'}`}></i>
                         {isEditMode ? 'ข้อมูลทรัพย์สิน' : 'เพิ่มทรัพย์สินใหม่'}
                     </h2>
 
@@ -204,7 +213,7 @@ const AssetForm = () => {
                                     name="asset_code"
                                     value={formData.asset_code || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full border p-3 md:p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50 md:bg-white"
                                     placeholder="เช่น IT-2024-XXX"
                                 />
                             </div>
@@ -335,10 +344,45 @@ const AssetForm = () => {
                                     name="assigned_to"
                                     value={formData.assigned_to || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
+                                    className="w-full border p-3 md:p-2 rounded focus:ring-2 focus:ring-blue-500"
                                     placeholder="ระบุชื่อผู้ใช้งาน"
                                 />
                             </div>
+                            <div>
+                                <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email || ''}
+                                    onChange={handleChange}
+                                    className="w-full border p-3 md:p-2 rounded focus:ring-2 focus:ring-blue-500"
+                                    placeholder="example@email.com"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="bg-blue-50 p-4 rounded-lg flex flex-wrap gap-6 items-center border border-blue-100">
+                            <label className="text-sm font-bold text-blue-800">หมวดหมู่ทรัพย์สิน:</label>
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <input
+                                    type="checkbox"
+                                    name="is_pc"
+                                    checked={formData.is_pc === 1}
+                                    onChange={handleChange}
+                                    className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                />
+                                <span className="text-gray-700 font-medium group-hover:text-blue-600 transition-colors">PC</span>
+                            </label>
+                            <label className="flex items-center gap-3 cursor-pointer group">
+                                <input
+                                    type="checkbox"
+                                    name="is_mobile"
+                                    checked={formData.is_mobile === 1}
+                                    onChange={handleChange}
+                                    className="w-5 h-5 rounded text-blue-600 focus:ring-blue-500 cursor-pointer"
+                                />
+                                <span className="text-gray-700 font-medium group-hover:text-blue-600 transition-colors">Phone / Tablet</span>
+                            </label>
                         </div>
 
                         <div>
@@ -494,6 +538,18 @@ const AssetForm = () => {
                                 <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Dates (รับ/คืน)</td>
                                 <td className="border p-2" style={{ borderColor: '#d1d5db' }}>
                                     In: {formData.received_date} / Return: {formData.return_date}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Email (อีเมล)</td>
+                                <td className="border p-2" style={{ borderColor: '#d1d5db' }}>{formData.email || '-'}</td>
+                            </tr>
+                            <tr>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Category (หมวดหมู่)</td>
+                                <td className="border p-2" style={{ borderColor: '#d1d5db' }}>
+                                    {formData.is_pc === 1 ? ' [✓] PC ' : ''}
+                                    {formData.is_mobile === 1 ? ' [✓] Phone/Tablet ' : ''}
+                                    {!formData.is_pc && !formData.is_mobile ? '-' : ''}
                                 </td>
                             </tr>
                             <tr>

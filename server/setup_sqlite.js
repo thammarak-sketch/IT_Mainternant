@@ -47,6 +47,9 @@ async function setupDatabase() {
                 notes TEXT,
                 assigned_to TEXT,
                 signature TEXT,
+                email TEXT,
+                is_pc INTEGER DEFAULT 0,
+                is_mobile INTEGER DEFAULT 0,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -71,6 +74,11 @@ async function setupDatabase() {
         try { await db.query(`ALTER TABLE assets ADD COLUMN spec TEXT`); console.log("Added 'spec' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (spec):", err.message); }
         try { await db.query(`ALTER TABLE assets ADD COLUMN received_date DATE`); console.log("Added 'received_date' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (received_date):", err.message); }
         try { await db.query(`ALTER TABLE assets ADD COLUMN return_date DATE`); console.log("Added 'return_date' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (return_date):", err.message); }
+
+        // New migrations for email and device types
+        try { await db.query(`ALTER TABLE assets ADD COLUMN email TEXT`); console.log("Added 'email' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (email):", err.message); }
+        try { await db.query(`ALTER TABLE assets ADD COLUMN is_pc INTEGER DEFAULT 0`); console.log("Added 'is_pc' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (is_pc):", err.message); }
+        try { await db.query(`ALTER TABLE assets ADD COLUMN is_mobile INTEGER DEFAULT 0`); console.log("Added 'is_mobile' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (is_mobile):", err.message); }
 
         // Assignments Table (History of who used what)
         await db.query(`

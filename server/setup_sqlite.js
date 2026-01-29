@@ -45,9 +45,27 @@ async function setupDatabase() {
                 location TEXT,                   -- Office, Home, etc.
                 image_path TEXT,
                 notes TEXT,
+                assigned_to TEXT,
+                signature TEXT,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+        // Migration: Ensure assigned_to and signature columns exist in assets (SQLite)
+        try {
+            await db.query(`ALTER TABLE assets ADD COLUMN assigned_to TEXT`);
+            console.log("Added 'assigned_to' column to assets table.");
+        } catch (err) {
+            // SQLite throws error if column exists. Check message or just ignore.
+            if (!err.message.includes('duplicate column')) console.log("Warning (assigned_to):", err.message);
+        }
+
+        try {
+            await db.query(`ALTER TABLE assets ADD COLUMN signature TEXT`);
+            console.log("Added 'signature' column to assets table.");
+        } catch (err) {
+            if (!err.message.includes('duplicate column')) console.log("Warning (signature):", err.message);
+        }
 
         // Assignments Table (History of who used what)
         await db.query(`

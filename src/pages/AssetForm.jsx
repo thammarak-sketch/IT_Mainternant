@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import SignatureCanvas from 'react-signature-canvas';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createAsset, getAsset, updateAsset, getMaintenanceLogs } from '../api';
 import Swal from 'sweetalert2';
@@ -40,6 +41,9 @@ const AssetForm = () => {
                         const baseURL = import.meta.env.MODE === 'production' ? '' : 'http://localhost:3000';
                         setPreview(baseURL + data.image_path);
                     }
+                    if (data.signature && sigPad.current) {
+                        sigPad.current.fromDataURL(data.signature);
+                    }
                 } catch (error) {
                     Swal.fire('Error', 'Failed to fetch asset details', 'error');
                     navigate('/');
@@ -57,6 +61,12 @@ const AssetForm = () => {
         } catch (error) {
             console.error("Failed to fetch history", error);
         }
+    };
+
+    const sigPad = useRef({});
+    const clearSignature = () => {
+        sigPad.current.clear();
+        setFormData(prev => ({ ...prev, signature: '' }));
     };
 
     const handleChange = (e) => {
@@ -81,6 +91,24 @@ const AssetForm = () => {
             // Convert null/undefined to empty string to avoid "null" string in backend
             const value = formData[key] === null || formData[key] === undefined ? '' : formData[key];
             data.append(key, value);
+        }
+
+        // Append signature
+        if (sigPad.current && !sigPad.current.isEmpty()) {
+            data.append('signature', sigPad.current.toDataURL());
+        } else if (isEditMode && formData.signature) {
+            // If not edited/cleared, keep existing? 
+            // Actually, backend update logic we wrote updates signature=? 
+            // If user didn't touch pad, isEmpty() is true.
+            // If we loaded signature via fromDataURL, isEmpty() is false? Check react-signature-canvas docs.
+            // fromDataURL makes isEmpty() false. 
+            // BUT if backend sends signature, we loaded it.
+            // If we don't re-send, backend might overwrite with null?
+            // Best to just always send current pad state.
+            // Wait, if isEmpty() is true, maybe they cleared it?
+            // If I clear, isEmpty is true.
+            // So relying on pad state is correct.
+            data.append('signature', ''); // If empty, clear it? Or ignore?
         }
         if (image) {
             data.append('image', image);
@@ -262,6 +290,36 @@ const AssetForm = () => {
                                     className="w-full border p-2 rounded"
                                     placeholder="เช่น แผนก IT, ห้อง Server"
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-gray-700 text-sm font-bold mb-2">ผู้ใช้งาน / ผู้รับผิดชอบ (Assigned To)</label>
+                                <input
+                                    type="text"
+                                    name="assigned_to"
+                                    value={formData.assigned_to || ''}
+                                    onChange={handleChange}
+                                    className="w-full border p-2 rounded"
+                                    placeholder="ระบุชื่อผู้ใช้งาน"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">ลายเซ็นผู้รับมอบ (Signature)</label>
+                            <div className="border rounded-lg p-2 bg-gray-50 inline-block">
+                                <SignatureCanvas
+                                    ref={sigPad}
+                                    penColor="black"
+                                    canvasProps={{ width: 400, height: 150, className: 'sigCanvas border bg-white rounded' }}
+                                />
+                            </div>
+                            <div className="mt-1">
+                                <button type="button" onClick={clearSignature} className="text-red-500 text-sm underline">
+                                    ลบ/เซ็นใหม่
+                                </button>
                             </div>
                         </div>
 

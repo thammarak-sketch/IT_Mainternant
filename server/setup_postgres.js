@@ -60,9 +60,26 @@ async function setupDatabase() {
                 location VARCHAR(255),
                 image_path VARCHAR(500),
                 notes TEXT,
+                assigned_to VARCHAR(255),
+                signature TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
+
+        // Migration: Ensure assigned_to and signature columns exist in assets
+        try {
+            await pool.query(`ALTER TABLE assets ADD COLUMN assigned_to VARCHAR(255)`);
+            console.log("Added 'assigned_to' column to assets table.");
+        } catch (err) {
+            if (err.code !== '42701') console.log("Warning: Could not add assigned_to:", err.message);
+        }
+
+        try {
+            await pool.query(`ALTER TABLE assets ADD COLUMN signature TEXT`);
+            console.log("Added 'signature' column to assets table.");
+        } catch (err) {
+            if (err.code !== '42701') console.log("Warning: Could not add signature:", err.message);
+        }
 
         // Assignments Table
         await pool.query(`

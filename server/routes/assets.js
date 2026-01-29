@@ -102,13 +102,14 @@ router.post('/', upload.single('image'), async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO assets (asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, image_path)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO assets (asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, image_path, assigned_to, signature)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const result = await db.query(sql, [
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
-            status || 'available', sanitize(location), sanitize(notes), image_path
+            status || 'available', sanitize(location), sanitize(notes), image_path,
+            sanitize(req.body.assigned_to), sanitize(req.body.signature)
         ]);
 
         res.status(201).json({ id: result[0].insertId, message: 'Asset created successfully', image_path });
@@ -130,7 +131,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         const params = [
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
-            sanitize(status), sanitize(location), sanitize(notes)
+            sanitize(status), sanitize(location), sanitize(notes),
+            sanitize(req.body.assigned_to), sanitize(req.body.signature)
         ];
 
         if (req.file) {
@@ -140,7 +142,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 
         const sql = `
             UPDATE assets 
-            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=? ${updateImageSql}
+            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=?, assigned_to=?, signature=? ${updateImageSql}
             WHERE id = ?
         `;
 

@@ -70,10 +70,12 @@ const AssetForm = () => {
         }
     };
 
-    const sigPad = useRef({});
+    const sigPad = useRef(null);
     const printRef = useRef();
     const clearSignature = () => {
-        sigPad.current.clear();
+        if (sigPad.current) {
+            sigPad.current.clear();
+        }
         setFormData(prev => ({ ...prev, signature: '' }));
     };
 
@@ -517,7 +519,7 @@ const AssetForm = () => {
                             <div className="h-32 w-full border border-dashed border-gray-400 flex items-center justify-center mb-2 overflow-hidden">
                                 {formData.signature ? (
                                     <img src={formData.signature} alt="Signature" className="object-contain h-full w-full" />
-                                ) : (sigPad.current && !sigPad.current.isEmpty && !sigPad.current.isEmpty()) ? (
+                                ) : (sigPad.current && typeof sigPad.current.isEmpty === 'function' && !sigPad.current.isEmpty()) ? (
                                     <img src={sigPad.current.toDataURL()} alt="Current Sig" className="object-contain h-full w-full" />
                                 ) : (
                                     <span className="text-gray-400 text-sm">Signature / ลายเซ็น</span>

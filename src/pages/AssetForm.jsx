@@ -165,9 +165,9 @@ const AssetForm = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-300 pb-12">
+        <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300 pb-12">
             <div className="container mx-auto px-4 py-8">
-                <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-lg dark:shadow-green-900/10 p-6 sm:p-8 transition-all border border-gray-100 dark:border-slate-700">
+                <div className="max-w-2xl mx-auto bg-white dark:bg-slate-800 rounded-xl shadow-lg dark:shadow-green-900/10 p-6 sm:p-8 transition-all border border-gray-200 dark:border-slate-700">
                     <h2 className="text-2xl font-bold mb-8 text-gray-800 dark:text-white border-b pb-4 dark:border-slate-700 flex items-center gap-3">
                         {isEditMode ? <i className="fa-solid fa-pen-to-square text-blue-500 dark:text-green-400"></i> : <i className="fa-solid fa-plus-circle text-blue-500 dark:text-green-400"></i>}
                         {isEditMode ? 'แก้ไขข้อมูลทรัพย์สิน' : 'เพิ่มทรัพย์สินใหม่'}

@@ -21,14 +21,14 @@ const Layout = () => {
     };
 
     return (
-        <div className="flex min-h-screen bg-gray-100 dark:bg-slate-900 transition-colors duration-300">
+        <div className="flex min-h-screen bg-white dark:bg-slate-900 transition-colors duration-300">
             {/* Mobile Header / Hamburger */}
-            <div className={`md:hidden fixed top-0 left-0 right-0 p-4 z-20 flex justify-between items-center shadow-md transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-800 text-white' : 'bg-slate-800 text-white'
+            <div className={`md:hidden fixed top-0 left-0 right-0 p-4 z-20 flex justify-between items-center shadow-md transition-colors duration-300 ${theme === 'dark' ? 'bg-slate-900 text-white border-b border-slate-700' : 'bg-white text-gray-800 border-b border-gray-200'
                 }`}>
                 <div className="font-bold text-lg flex items-center gap-2">
-                    <i className="fa-solid fa-laptop-code text-blue-400"></i> ITAssist
+                    <i className="fa-solid fa-laptop-code text-blue-500"></i> ITAssist
                 </div>
-                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="text-white text-2xl focus:outline-none">
+                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className={`text-2xl focus:outline-none ${theme === 'dark' ? 'text-white' : 'text-gray-600'}`}>
                     <i className={`fa-solid ${isSidebarOpen ? 'fa-times' : 'fa-bars'}`}></i>
                 </button>
             </div>

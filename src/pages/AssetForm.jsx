@@ -362,7 +362,7 @@ const AssetForm = () => {
                         </div>
 
                         <div className="bg-blue-50 p-4 rounded-lg flex flex-wrap gap-6 items-center border border-blue-100">
-                            <label className="text-sm font-bold text-blue-800">หมวดหมู่ทรัพย์สิน:</label>
+                            <label className="text-sm font-bold text-blue-800">เมลย์ใช้กับ:</label>
                             <label className="flex items-center gap-3 cursor-pointer group">
                                 <input
                                     type="checkbox"
@@ -545,7 +545,7 @@ const AssetForm = () => {
                                 <td className="border p-2" style={{ borderColor: '#d1d5db' }}>{formData.email || '-'}</td>
                             </tr>
                             <tr>
-                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Category (หมวดหมู่)</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Email used with (เมลล์ใช้กับ)</td>
                                 <td className="border p-2" style={{ borderColor: '#d1d5db' }}>
                                     {formData.is_pc === 1 ? ' [✓] PC ' : ''}
                                     {formData.is_mobile === 1 ? ' [✓] Phone/Tablet ' : ''}

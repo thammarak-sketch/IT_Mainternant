@@ -110,6 +110,18 @@ async function setupDatabase() {
             )
         `);
 
+        // Emails Table (Registration of emails used with devices)
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS registration_emails (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                email TEXT NOT NULL UNIQUE,
+                is_pc INTEGER DEFAULT 0,
+                is_mobile INTEGER DEFAULT 0,
+                notes TEXT,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
         console.log('Tables created. Seeding data...');
 
         // Seed Admin

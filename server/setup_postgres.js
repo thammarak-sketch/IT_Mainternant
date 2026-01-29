@@ -62,6 +62,9 @@ async function setupDatabase() {
                 notes TEXT,
                 assigned_to VARCHAR(255),
                 signature TEXT,
+                email VARCHAR(255),
+                is_pc INTEGER DEFAULT 0,
+                is_mobile INTEGER DEFAULT 0,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
@@ -85,6 +88,11 @@ async function setupDatabase() {
         try { await pool.query(`ALTER TABLE assets ADD COLUMN spec TEXT`); console.log("Added 'spec' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (spec):", err.message); }
         try { await pool.query(`ALTER TABLE assets ADD COLUMN received_date DATE`); console.log("Added 'received_date' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (received_date):", err.message); }
         try { await pool.query(`ALTER TABLE assets ADD COLUMN return_date DATE`); console.log("Added 'return_date' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (return_date):", err.message); }
+
+        // New migrations for email and device types
+        try { await pool.query(`ALTER TABLE assets ADD COLUMN email VARCHAR(255)`); console.log("Added 'email' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (email):", err.message); }
+        try { await pool.query(`ALTER TABLE assets ADD COLUMN is_pc INTEGER DEFAULT 0`); console.log("Added 'is_pc' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (is_pc):", err.message); }
+        try { await pool.query(`ALTER TABLE assets ADD COLUMN is_mobile INTEGER DEFAULT 0`); console.log("Added 'is_mobile' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (is_mobile):", err.message); }
 
         // Assignments Table
         await pool.query(`
@@ -130,6 +138,18 @@ async function setupDatabase() {
                 repair_method VARCHAR(50),
                 signer_name VARCHAR(255),
                 service_type VARCHAR(50) DEFAULT 'repair',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+
+        // Emails Table (Registration of emails used with devices)
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS registration_emails (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                is_pc INTEGER DEFAULT 0,
+                is_mobile INTEGER DEFAULT 0,
+                notes TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);

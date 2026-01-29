@@ -15,11 +15,13 @@ const assetRoutes = require('./routes/assets');
 const authRoutes = require('./routes/auth');
 const maintenanceRoutes = require('./routes/maintenance');
 const userRoutes = require('./routes/users');
+const emailRoutes = require('./routes/emails');
 
 app.use('/api/assets', assetRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/emails', emailRoutes);
 
 console.log('Maintenance routes registered at /api/maintenance');
 

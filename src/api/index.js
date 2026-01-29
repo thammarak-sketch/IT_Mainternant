@@ -18,3 +18,9 @@ export const deleteMaintenanceLog = (id) => API.delete(`/maintenance/${id}`);
 
 // Auth APIs
 export const login = (credentials) => API.post('/auth/login', credentials);
+
+// Email Registration APIs
+export const getRegistrationEmails = (params) => API.get('/emails', { params });
+export const createRegistrationEmail = (data) => API.post('/emails', data);
+export const updateRegistrationEmail = (id, data) => API.put(`/emails/${id}`, data);
+export const deleteRegistrationEmail = (id) => API.delete(`/emails/${id}`);

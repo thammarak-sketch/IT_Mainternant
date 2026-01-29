@@ -11,6 +11,7 @@ import Maintenance from './pages/Maintenance';
 import MaintenanceForm from './pages/MaintenanceForm';
 import MaintenanceStats from './pages/MaintenanceStats';
 import UsersPage from './pages/UsersPage';
+import EmailPage from './pages/EmailPage';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -40,6 +41,7 @@ function App() {
           <Route path="/maintenance/stats" element={<MaintenanceStats />} /> {/* Added route for MaintenanceStats */}
           <Route path="/users" element={<UsersPage />} />
           <Route path="/maintenance/add" element={<MaintenanceForm />} />
+          <Route path="/emails" element={<EmailPage />} />
         </Route>
       </Routes>
     </Router>

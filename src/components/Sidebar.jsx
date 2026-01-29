@@ -59,6 +59,11 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                     <span>ทะเบียนทรัพย์สิน</span>
                 </NavLink>
 
+                <NavLink to="/emails" className={getNavLinkClass} onClick={handleLinkClick}>
+                    <i className="fa-solid fa-at w-5 text-center"></i>
+                    <span>ทะเบียนอีเมล (Email)</span>
+                </NavLink>
+
                 <NavLink to="/stock" className={getNavLinkClass} onClick={handleLinkClick}>
                     <i className="fa-solid fa-chart-pie w-5 text-center"></i>
                     <span>สรุปสต็อก (Stock)</span>

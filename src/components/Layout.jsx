@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
+import BottomNav from './BottomNav';
 
 const Layout = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -29,11 +30,14 @@ const Layout = () => {
             )}
 
             {/* Main Content */}
-            <div className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 transition-all duration-300">
+            <div className="flex-1 md:ml-64 p-4 md:p-8 pt-20 md:pt-8 pb-20 md:pb-8 transition-all duration-300">
                 <main>
                     <Outlet />
                 </main>
             </div>
+
+            {/* Bottom Navigation for Mobile */}
+            <BottomNav />
         </div>
     );
 };

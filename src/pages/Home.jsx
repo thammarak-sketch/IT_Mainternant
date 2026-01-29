@@ -100,8 +100,8 @@ const Home = () => {
                     </select>
                 </div>
 
-                {/* Table */}
-                <div className="bg-white rounded-lg shadow overflow-x-auto">
+                {/* Desktop View (Table) */}
+                <div className="hidden md:block bg-white rounded-lg shadow overflow-x-auto">
                     <table className="min-w-full leading-normal">
                         <thead>
                             <tr>
@@ -193,6 +193,52 @@ const Home = () => {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                {/* Mobile View (Card List) */}
+                <div className="md:hidden grid grid-cols-1 gap-4">
+                    {assets.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500 bg-white rounded-lg shadow">ไม่พบข้อมูลทรัพย์สิน</div>
+                    ) : (
+                        assets.map((asset) => (
+                            <div key={asset.id} className="bg-white p-4 rounded-lg shadow flex gap-4">
+                                <div className="flex-shrink-0 w-24 h-24">
+                                    {asset.image_path ? (
+                                        <img className="w-full h-full rounded-lg object-cover" src={getImageUrl(asset.image_path)} alt={asset.name} />
+                                    ) : (
+                                        <div className="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center text-gray-400">
+                                            <i className="fa-solid fa-image text-2xl"></i>
+                                        </div>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-start mb-1">
+                                        <span className="font-mono text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-600">{asset.asset_code}</span>
+                                        <span className={`text-xs px-2 py-0.5 rounded-full ${asset.status === 'available' ? 'bg-green-100 text-green-800' :
+                                            asset.status === 'assigned' ? 'bg-blue-100 text-blue-800' :
+                                                asset.status === 'repair' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-gray-100 text-gray-800'
+                                            }`}>
+                                            {asset.status === 'available' ? 'ว่าง' :
+                                                asset.status === 'assigned' ? 'ใช้งาน' :
+                                                    asset.status === 'repair' ? 'ส่งซ่อม' :
+                                                        asset.status === 'retired' ? 'ตัดจำหน่าย' : 'สูญหาย'}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-bold text-gray-900 truncate mb-1">{asset.name}</h3>
+                                    <p className="text-xs text-gray-500 mb-2 truncate">{asset.brand} - {asset.model}</p>
+
+                                    <div className="flex justify-between items-center mt-auto">
+                                        <p className="text-sm font-semibold text-gray-900">฿{Number(asset.price).toLocaleString()}</p>
+                                        <div className="flex gap-3">
+                                            <Link to={`/edit/${asset.id}`} className="text-blue-600 text-sm">แก้ไข</Link>
+                                            <button onClick={() => handleDelete(asset.id)} className="text-red-600 text-sm">ลบ</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
         </div>

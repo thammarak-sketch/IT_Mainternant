@@ -432,22 +432,22 @@ const AssetForm = () => {
 
             {/* Hidden Print Template */}
             <div style={{ position: 'absolute', top: -10000, left: -10000 }}>
-                <div ref={printRef} className="w-[210mm] min-h-[297mm] bg-white p-12 text-black font-sans box-border relative">
+                <div ref={printRef} className="w-[210mm] min-h-[297mm] p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold mb-2">Asset Handover Form</h1>
                         <h2 className="text-xl">แบบฟอร์มส่งมอบทรัพย์สิน</h2>
-                        <p className="text-gray-600 mt-2">Date / วันที่: {new Date().toLocaleDateString('th-TH')}</p>
+                        <p className="mt-2" style={{ color: '#4b5563' }}>Date / วันที่: {new Date().toLocaleDateString('th-TH')}</p>
                     </div>
 
                     {/* Top Section: Image & Basic Info */}
                     <div className="flex gap-6 mb-8 items-start">
                         {preview ? (
-                            <div className="w-40 h-40 flex-shrink-0 border border-gray-300 rounded flex items-center justify-center overflow-hidden bg-gray-100">
+                            <div className="w-40 h-40 flex-shrink-0 border rounded flex items-center justify-center overflow-hidden" style={{ borderColor: '#d1d5db', backgroundColor: '#f3f4f6' }}>
                                 <img src={preview} alt="Asset" className="w-full h-full object-cover" />
                             </div>
                         ) : (
-                            <div className="w-40 h-40 flex-shrink-0 border border-gray-300 rounded flex items-center justify-center bg-gray-100 text-gray-400">
+                            <div className="w-40 h-40 flex-shrink-0 border rounded flex items-center justify-center" style={{ borderColor: '#d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af' }}>
                                 No Image
                             </div>
                         )}
@@ -464,68 +464,68 @@ const AssetForm = () => {
                     </div>
 
                     {/* Details Table */}
-                    <table className="w-full border-collapse border border-gray-300 mb-8 text-sm">
+                    <table className="w-full border-collapse border mb-8 text-sm" style={{ borderColor: '#d1d5db' }}>
                         <tbody>
-                            <tr className="bg-gray-100">
-                                <th className="border border-gray-300 p-2 text-left w-1/3">Field / หัวข้อ</th>
-                                <th className="border border-gray-300 p-2 text-left">Detail / รายละเอียด</th>
+                            <tr style={{ backgroundColor: '#f3f4f6' }}>
+                                <th className="border p-2 text-left w-1/3" style={{ borderColor: '#d1d5db' }}>Field / หัวข้อ</th>
+                                <th className="border p-2 text-left" style={{ borderColor: '#d1d5db' }}>Detail / รายละเอียด</th>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Asset Name (ชื่อ)</td>
-                                <td className="border border-gray-300 p-2">{formData.name}</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Asset Name (ชื่อ)</td>
+                                <td className="border p-2" style={{ borderColor: '#d1d5db' }}>{formData.name}</td>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Price (ราคา)</td>
-                                <td className="border border-gray-300 p-2">{formData.price ? Number(formData.price).toLocaleString() : '-'} THB</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Price (ราคา)</td>
+                                <td className="border p-2" style={{ borderColor: '#d1d5db' }}>{formData.price ? Number(formData.price).toLocaleString() : '-'} THB</td>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Purchase Date (วันที่ซื้อ)</td>
-                                <td className="border border-gray-300 p-2">{formData.purchase_date}</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Purchase Date (วันที่ซื้อ)</td>
+                                <td className="border p-2" style={{ borderColor: '#d1d5db' }}>{formData.purchase_date}</td>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Location (สถานที่)</td>
-                                <td className="border border-gray-300 p-2">{formData.location}</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Location (สถานที่)</td>
+                                <td className="border p-2" style={{ borderColor: '#d1d5db' }}>{formData.location}</td>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Spec (สเปค)</td>
-                                <td className="border border-gray-300 p-2 whitespace-pre-wrap">{formData.spec}</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Spec (สเปค)</td>
+                                <td className="border p-2 whitespace-pre-wrap" style={{ borderColor: '#d1d5db' }}>{formData.spec}</td>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Dates (รับ/คืน)</td>
-                                <td className="border border-gray-300 p-2">
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Dates (รับ/คืน)</td>
+                                <td className="border p-2" style={{ borderColor: '#d1d5db' }}>
                                     In: {formData.received_date} / Return: {formData.return_date}
                                 </td>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Status (สถานะ)</td>
-                                <td className="border border-gray-300 p-2 capitalize">{formData.status}</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Status (สถานะ)</td>
+                                <td className="border p-2 capitalize" style={{ borderColor: '#d1d5db' }}>{formData.status}</td>
                             </tr>
                             <tr>
-                                <td className="border border-gray-300 p-2 font-bold">Notes (หมายเหตุ)</td>
-                                <td className="border border-gray-300 p-2 whitespace-pre-wrap">{formData.notes}</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Notes (หมายเหตุ)</td>
+                                <td className="border p-2 whitespace-pre-wrap" style={{ borderColor: '#d1d5db' }}>{formData.notes}</td>
                             </tr>
                         </tbody>
                     </table>
 
                     {/* Signature Section */}
-                    <div className="mt-12 border-t pt-8">
+                    <div className="mt-12 border-t pt-8" style={{ borderColor: '#e5e7eb' }}>
                         <p className="font-bold mb-4">Examined & Received By / ผู้ตรวจสอบและรับมอบ</p>
                         <div className="flex items-end gap-4 mb-4">
                             <span>Name / ชื่อ:</span>
-                            <span className="border-b border-gray-400 flex-1 pb-1 px-2">{formData.assigned_to}</span>
+                            <span className="border-b flex-1 pb-1 px-2" style={{ borderColor: '#9ca3af' }}>{formData.assigned_to}</span>
                         </div>
 
                         <div className="mt-8 flex flex-col items-center w-64">
-                            <div className="h-32 w-full border border-dashed border-gray-400 flex items-center justify-center mb-2 overflow-hidden">
+                            <div className="h-32 w-full border border-dashed flex items-center justify-center mb-2 overflow-hidden" style={{ borderColor: '#9ca3af' }}>
                                 {formData.signature ? (
                                     <img src={formData.signature} alt="Signature" className="object-contain h-full w-full" />
                                 ) : (sigPad.current && typeof sigPad.current.isEmpty === 'function' && !sigPad.current.isEmpty()) ? (
                                     <img src={sigPad.current.toDataURL()} alt="Current Sig" className="object-contain h-full w-full" />
                                 ) : (
-                                    <span className="text-gray-400 text-sm">Signature / ลายเซ็น</span>
+                                    <span className="text-sm" style={{ color: '#9ca3af' }}>Signature / ลายเซ็น</span>
                                 )}
                             </div>
-                            <div className="border-t border-black w-full text-center py-1">( Signed / ลงชื่อ )</div>
+                            <div className="border-t w-full text-center py-1" style={{ borderColor: '#000000' }}>( Signed / ลงชื่อ )</div>
                         </div>
                     </div>
                 </div>

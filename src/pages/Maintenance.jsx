@@ -496,7 +496,8 @@ const Maintenance = () => {
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">วันที่</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">รายละเอียด</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">สถานะ</th>
-                            <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ผู้แจ้ง/ผู้ดำเนินการ</th>
+                            <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ผู้แจ้ง</th>
+                            <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ผู้ซ่อม</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">วิธีการ/ค่าใช้จ่าย</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">จัดการ</th>
                         </tr>
@@ -504,7 +505,7 @@ const Maintenance = () => {
                     <tbody>
                         {logs.length === 0 ? (
                             <tr>
-                                <td colSpan="6" className="text-center py-4 text-gray-500">ไม่พบรายการแจ้งซ่อม</td>
+                                <td colSpan="7" className="text-center py-4 text-gray-500">ไม่พบรายการแจ้งซ่อม</td>
                             </tr>
                         ) : (
                             logs.filter(log => !filterDeviceType || log.asset_type === filterDeviceType).map((log) => (
@@ -521,8 +522,10 @@ const Maintenance = () => {
                                         {getStatusBadge(log)}
                                     </td>
                                     <td className="px-3 py-4 border-b border-gray-200 bg-white text-sm">
-                                        <div className="text-xs">แจ้ง: {log.reporter_name}</div>
-                                        <div className="text-xs font-medium text-blue-600">ซ่อม: {log.technician_name || '-'}</div>
+                                        <div className="text-xs transition-colors duration-200 group-hover:text-blue-600">{log.reporter_name}</div>
+                                    </td>
+                                    <td className="px-3 py-4 border-b border-gray-200 bg-white text-sm">
+                                        <div className="text-xs font-medium text-blue-600 italic">{log.technician_name || '-'}</div>
                                     </td>
                                     <td className="px-3 py-4 border-b border-gray-200 bg-white text-sm">
                                         <div className="text-xs">

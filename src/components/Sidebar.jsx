@@ -85,7 +85,7 @@ const Sidebar = ({ isOpen, setIsOpen, theme, toggleTheme }) => {
                 </NavLink>
 
                 {user.role === 'admin' && (
-                    <NavLink to="/register" onClick={closeSidebar}
+                    <NavLink to="/users" onClick={closeSidebar}
                         className={({ isActive }) => `flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group
                         ${isActive
                                 ? (theme === 'dark' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-blue-50 text-blue-600 border border-blue-100 shadow-sm')

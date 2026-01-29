@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import html2canvas from 'html2canvas';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createAsset, getAsset, updateAsset, getMaintenanceLogs } from '../api';
 import Swal from 'sweetalert2';
@@ -71,6 +71,7 @@ const AssetForm = () => {
     };
 
     const sigPad = useRef({});
+    const printRef = useRef();
     const clearSignature = () => {
         sigPad.current.clear();
         setFormData(prev => ({ ...prev, signature: '' }));
@@ -89,79 +90,22 @@ const AssetForm = () => {
         }
     };
 
-    const handleExportPDF = () => {
+    const handleExportPDF = async () => {
         try {
-            console.log("Generating PDF...");
-            // Initialize jsPDF with named import if needed, or default. 
-            // Since we changed import to { jsPDF }, new jsPDF() is correct.
-            const doc = new jsPDF();
-
-            // Add Header
-            doc.setFontSize(22);
-            doc.text("Asset Handover Form / แบบฟอร์มส่งมอบทรัพย์สิน", 105, 20, { align: 'center' });
-
-            doc.setFontSize(12);
-            doc.text(`Date / วันที่: ${new Date().toLocaleDateString('th-TH')}`, 14, 30);
-
-            // Add Image if exists
-            let yPos = 40;
-            if (preview) {
-                try {
-                    // Determine image format (roughly)
-                    const imgFormat = preview.includes('png') ? 'PNG' : 'JPEG';
-                    // Calculate aspect ratio to fit in 60x60 box
-                    doc.addImage(preview, imgFormat, 150, 35, 40, 40);
-                } catch (err) {
-                    console.error("Error adding image to PDF", err);
-                }
+            console.log("Generating PDF with html2canvas...");
+            if (!printRef.current) {
+                Swal.fire('Error', 'Print template not found', 'error');
+                return;
             }
 
-            // Table Data
-            // Table Data
-            const tableData = [
-                ['Asset Code / รหัส', formData.asset_code || '-'],
-                ['Name / ชื่อทรัพย์สิน', formData.name || '-'],
-                ['Type / ประเภท', formData.type || '-'],
-                ['Brand / ยี่ห้อ', formData.brand || '-'],
-                ['Model / รุ่น', formData.model || '-'],
-                ['Serial Number', formData.serial_number || '-'],
-                ['Price / ราคา', formData.price ? `${Number(formData.price).toLocaleString()} THB` : '-'],
-                ['Purchase Date / วันที่ซื้อ', formData.purchase_date || '-'],
-                ['Location / สถานที่', formData.location || '-'],
-                ['Spec / สเปค', formData.spec || '-'],
-                ['Received Date / วันที่รับ', formData.received_date || '-'],
-                ['Return Date / วันที่คืน', formData.return_date || '-'],
-                ['Status / สถานะ', formData.status || '-'],
-                ['Notes / หมายเหตุ', formData.notes || '-'],
-            ];
+            const canvas = await html2canvas(printRef.current, { scale: 2, useCORS: true });
+            const imgData = canvas.toDataURL('image/png');
 
-            autoTable(doc, {
-                startY: yPos + 5,
-                head: [['Field / หัวข้อ', 'Detail / รายละเอียด']],
-                body: tableData,
-                theme: 'grid',
-                headStyles: { fillColor: [66, 66, 66] },
-                // Use a default font that supports basic latin. Thai might still be garbage without custom font.
-                styles: { font: 'helvetica' }
-            });
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = doc.internal.pageSize.getHeight();
 
-            // Signature Section
-            yPos = doc.lastAutoTable.finalY + 20;
-
-            doc.text("Examined & Received By / ผู้ตรวจสอบและรับมอบ:", 14, yPos);
-            doc.text(`Name / ชื่อ: ${formData.assigned_to || '................................................'}`, 14, yPos + 10);
-
-            if (formData.signature) {
-                doc.addImage(formData.signature, 'PNG', 20, yPos + 15, 60, 30);
-                doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
-            } else if (sigPad.current && !sigPad.current.isEmpty()) {
-                doc.addImage(sigPad.current.toDataURL(), 'PNG', 20, yPos + 15, 60, 30);
-                doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
-            } else {
-                doc.text("................................................", 20, yPos + 40);
-                doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
-            }
-
+            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             doc.save(`Asset_Handover_${formData.asset_code || 'New'}.pdf`);
             console.log("PDF Generated Successfully");
         } catch (error) {
@@ -484,110 +428,214 @@ const AssetForm = () => {
                 </div>
             </div>
 
-            {/* Maintenance History Section */}
-            {isEditMode && (
-                <div className="max-w-6xl mx-auto mt-8 bg-white rounded-lg shadow-md p-6">
-                    <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
-                        <i className="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>
-                        ประวัติการซ่อมบำรุง
-                    </h3>
-
-                    {/* Desktop Table View */}
-                    <div className="hidden md:block overflow-x-auto">
-                        <table className="min-w-full leading-normal">
-                            <thead>
-                                <tr>
-                                    <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        วันที่
-                                    </th>
-                                    <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        ประเภท
-                                    </th>
-                                    <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        รายละเอียด
-                                    </th>
-                                    <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        สถานะ
-                                    </th>
-                                    <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                        ค่าใช้จ่าย
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {maintenanceLogs.length === 0 ? (
-                                    <tr>
-                                        <td colSpan="5" className="text-center py-4 text-gray-500">ไม่พบประวัติการซ่อม</td>
-                                    </tr>
-                                ) : (
-                                    maintenanceLogs.map((log) => (
-                                        <tr key={log.id}>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                {new Date(log.created_at || log.log_date).toLocaleDateString('th-TH')}
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <span className={`px-2 py-1 rounded text-xs font-bold ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50' :
-                                                    log.service_type === 'service' ? 'text-blue-700 bg-blue-50' : 'text-orange-700 bg-orange-50'
-                                                    }`}>
-                                                    {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
-                                                </span>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <div className="max-w-xs truncate">{log.description}</div>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                                    log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
-                                                        'bg-gray-100 text-gray-800'
-                                                    }`}>
-                                                    {log.status === 'completed' ? 'เสร็จสิ้น' :
-                                                        log.status === 'in_progress' ? 'กำลังดำเนินการ' : 'รอคิว'}
-                                                </span>
-                                            </td>
-                                            <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                                                {log.cost ? `฿${Number(log.cost).toLocaleString()}` : '-'}
-                                            </td>
-                                        </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
+            {/* Hidden Print Template */}
+            <div style={{ position: 'absolute', top: -10000, left: -10000 }}>
+                <div ref={printRef} className="w-[210mm] min-h-[297mm] bg-white p-12 text-black font-sans box-border relative">
+                    {/* Header */}
+                    <div className="text-center mb-8">
+                        <h1 className="text-2xl font-bold mb-2">Asset Handover Form</h1>
+                        <h2 className="text-xl">แบบฟอร์มส่งมอบทรัพย์สิน</h2>
+                        <p className="text-gray-600 mt-2">Date / วันที่: {new Date().toLocaleDateString('th-TH')}</p>
                     </div>
 
-                    {/* Mobile Card View */}
-                    <div className="md:hidden space-y-4">
-                        {maintenanceLogs.length === 0 ? (
-                            <div className="text-center py-4 text-gray-500">ไม่พบประวัติการซ่อม</div>
+                    {/* Top Section: Image & Basic Info */}
+                    <div className="flex gap-6 mb-8 items-start">
+                        {preview ? (
+                            <div className="w-40 h-40 flex-shrink-0 border border-gray-300 rounded flex items-center justify-center overflow-hidden bg-gray-100">
+                                <img src={preview} alt="Asset" className="w-full h-full object-cover" />
+                            </div>
                         ) : (
-                            maintenanceLogs.map((log) => (
-                                <div key={log.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <div className="font-bold text-gray-800">
-                                            {new Date(log.created_at || log.log_date).toLocaleDateString('th-TH')}
-                                        </div>
-                                        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
-                                            log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-800'}`}>
-                                            {log.status === 'completed' ? 'เสร็จสิ้น' :
-                                                log.status === 'in_progress' ? 'กำลังดำเนินการ' : 'รอคิว'}
-                                        </span>
-                                    </div>
-                                    <div className="mb-2">
-                                        <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-1 ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50' :
-                                            log.service_type === 'service' ? 'text-blue-700 bg-blue-50' : 'text-orange-700 bg-orange-50'}`}>
-                                            {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
-                                        </span>
-                                        <p className="text-sm text-gray-600">{log.description}</p>
-                                    </div>
-                                    <div className="text-right text-sm font-bold text-gray-700 border-t pt-2 mt-2">
-                                        {log.cost ? `฿${Number(log.cost).toLocaleString()}` : 'ไม่มีค่าใช้จ่าย'}
-                                    </div>
-                                </div>
-                            ))
+                            <div className="w-40 h-40 flex-shrink-0 border border-gray-300 rounded flex items-center justify-center bg-gray-100 text-gray-400">
+                                No Image
+                            </div>
                         )}
+
+                        <div className="flex-1 space-y-2">
+                            <div className="grid grid-cols-2 gap-x-4">
+                                <div><span className="font-bold">Code / รหัส:</span> {formData.asset_code}</div>
+                                <div><span className="font-bold">Type / ประเภท:</span> {formData.type}</div>
+                                <div><span className="font-bold">Brand / ยี่ห้อ:</span> {formData.brand}</div>
+                                <div><span className="font-bold">Model / รุ่น:</span> {formData.model}</div>
+                                <div className="col-span-2"><span className="font-bold">S/N:</span> {formData.serial_number}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Details Table */}
+                    <table className="w-full border-collapse border border-gray-300 mb-8 text-sm">
+                        <tbody>
+                            <tr className="bg-gray-100">
+                                <th className="border border-gray-300 p-2 text-left w-1/3">Field / หัวข้อ</th>
+                                <th className="border border-gray-300 p-2 text-left">Detail / รายละเอียด</th>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Asset Name (ชื่อ)</td>
+                                <td className="border border-gray-300 p-2">{formData.name}</td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Price (ราคา)</td>
+                                <td className="border border-gray-300 p-2">{formData.price ? Number(formData.price).toLocaleString() : '-'} THB</td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Purchase Date (วันที่ซื้อ)</td>
+                                <td className="border border-gray-300 p-2">{formData.purchase_date}</td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Location (สถานที่)</td>
+                                <td className="border border-gray-300 p-2">{formData.location}</td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Spec (สเปค)</td>
+                                <td className="border border-gray-300 p-2 whitespace-pre-wrap">{formData.spec}</td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Dates (รับ/คืน)</td>
+                                <td className="border border-gray-300 p-2">
+                                    In: {formData.received_date} / Return: {formData.return_date}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Status (สถานะ)</td>
+                                <td className="border border-gray-300 p-2 capitalize">{formData.status}</td>
+                            </tr>
+                            <tr>
+                                <td className="border border-gray-300 p-2 font-bold">Notes (หมายเหตุ)</td>
+                                <td className="border border-gray-300 p-2 whitespace-pre-wrap">{formData.notes}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    {/* Signature Section */}
+                    <div className="mt-12 border-t pt-8">
+                        <p className="font-bold mb-4">Examined & Received By / ผู้ตรวจสอบและรับมอบ</p>
+                        <div className="flex items-end gap-4 mb-4">
+                            <span>Name / ชื่อ:</span>
+                            <span className="border-b border-gray-400 flex-1 pb-1 px-2">{formData.assigned_to}</span>
+                        </div>
+
+                        <div className="mt-8 flex flex-col items-center w-64">
+                            <div className="h-32 w-full border border-dashed border-gray-400 flex items-center justify-center mb-2 overflow-hidden">
+                                {formData.signature ? (
+                                    <img src={formData.signature} alt="Signature" className="object-contain h-full w-full" />
+                                ) : (sigPad.current && !sigPad.current.isEmpty && !sigPad.current.isEmpty()) ? (
+                                    <img src={sigPad.current.toDataURL()} alt="Current Sig" className="object-contain h-full w-full" />
+                                ) : (
+                                    <span className="text-gray-400 text-sm">Signature / ลายเซ็น</span>
+                                )}
+                            </div>
+                            <div className="border-t border-black w-full text-center py-1">( Signed / ลงชื่อ )</div>
+                        </div>
                     </div>
                 </div>
-            )}
+            </div>
         </div>
+
+            {/* Maintenance History Section */ }
+    {
+        isEditMode && (
+            <div className="max-w-6xl mx-auto mt-8 bg-white rounded-lg shadow-md p-6">
+                <h3 className="text-xl font-bold mb-4 text-gray-800 flex items-center">
+                    <i className="fa-solid fa-clock-rotate-left mr-2 text-blue-600"></i>
+                    ประวัติการซ่อมบำรุง
+                </h3>
+
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
+                    <table className="min-w-full leading-normal">
+                        <thead>
+                            <tr>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    วันที่
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    ประเภท
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    รายละเอียด
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    สถานะ
+                                </th>
+                                <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                                    ค่าใช้จ่าย
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {maintenanceLogs.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="text-center py-4 text-gray-500">ไม่พบประวัติการซ่อม</td>
+                                </tr>
+                            ) : (
+                                maintenanceLogs.map((log) => (
+                                    <tr key={log.id}>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            {new Date(log.created_at || log.log_date).toLocaleDateString('th-TH')}
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <span className={`px-2 py-1 rounded text-xs font-bold ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50' :
+                                                log.service_type === 'service' ? 'text-blue-700 bg-blue-50' : 'text-orange-700 bg-orange-50'
+                                                }`}>
+                                                {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <div className="max-w-xs truncate">{log.description}</div>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                                log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :
+                                                    'bg-gray-100 text-gray-800'
+                                                }`}>
+                                                {log.status === 'completed' ? 'เสร็จสิ้น' :
+                                                    log.status === 'in_progress' ? 'กำลังดำเนินการ' : 'รอคิว'}
+                                            </span>
+                                        </td>
+                                        <td className="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                                            {log.cost ? `฿${Number(log.cost).toLocaleString()}` : '-'}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                    {maintenanceLogs.length === 0 ? (
+                        <div className="text-center py-4 text-gray-500">ไม่พบประวัติการซ่อม</div>
+                    ) : (
+                        maintenanceLogs.map((log) => (
+                            <div key={log.id} className="bg-gray-50 p-4 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="font-bold text-gray-800">
+                                        {new Date(log.created_at || log.log_date).toLocaleDateString('th-TH')}
+                                    </div>
+                                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
+                                        log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-200 text-gray-800'}`}>
+                                        {log.status === 'completed' ? 'เสร็จสิ้น' :
+                                            log.status === 'in_progress' ? 'กำลังดำเนินการ' : 'รอคิว'}
+                                    </span>
+                                </div>
+                                <div className="mb-2">
+                                    <span className={`inline-block px-2 py-1 rounded text-xs font-bold mb-1 ${log.service_type === 'new_setup' ? 'text-purple-700 bg-purple-50' :
+                                        log.service_type === 'service' ? 'text-blue-700 bg-blue-50' : 'text-orange-700 bg-orange-50'}`}>
+                                        {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
+                                    </span>
+                                    <p className="text-sm text-gray-600">{log.description}</p>
+                                </div>
+                                <div className="text-right text-sm font-bold text-gray-700 border-t pt-2 mt-2">
+                                    {log.cost ? `฿${Number(log.cost).toLocaleString()}` : 'ไม่มีค่าใช้จ่าย'}
+                                </div>
+                            </div>
+                        ))
+                    )}
+                </div>
+            </div>
+        )
+    }
+        </div >
     );
 };
 

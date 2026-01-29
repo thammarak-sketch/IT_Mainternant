@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 import { useNavigate, useParams } from 'react-router-dom';
 import { createAsset, getAsset, updateAsset, getMaintenanceLogs } from '../api';
 import Swal from 'sweetalert2';
@@ -20,7 +22,10 @@ const AssetForm = () => {
         price: '',
         status: 'available',
         location: '',
-        notes: ''
+        notes: '',
+        spec: '',
+        received_date: '',
+        return_date: ''
     });
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -34,7 +39,9 @@ const AssetForm = () => {
                     // Format date for input
                     const formattedData = {
                         ...data,
-                        purchase_date: data.purchase_date ? data.purchase_date.split('T')[0] : ''
+                        purchase_date: data.purchase_date ? data.purchase_date.split('T')[0] : '',
+                        received_date: data.received_date ? data.received_date.split('T')[0] : '',
+                        return_date: data.return_date ? data.return_date.split('T')[0] : ''
                     };
                     setFormData(formattedData);
                     if (data.image_path) {
@@ -80,6 +87,75 @@ const AssetForm = () => {
             setImage(file);
             setPreview(URL.createObjectURL(file));
         }
+    };
+
+    const handleExportPDF = () => {
+        const doc = new jsPDF();
+
+        // Add Header
+        doc.setFontSize(22);
+        doc.text("Asset Handover Form / แบบฟอร์มส่งมอบทรัพย์สิน", 105, 20, { align: 'center' });
+
+        doc.setFontSize(12);
+        doc.text(`Date / วันที่: ${new Date().toLocaleDateString('th-TH')}`, 14, 30);
+
+        // Add Image if exists
+        let yPos = 40;
+        if (preview) {
+            try {
+                // Determine image format (roughly)
+                const imgFormat = preview.includes('png') ? 'PNG' : 'JPEG';
+                // Calculate aspect ratio to fit in 60x60 box
+                doc.addImage(preview, imgFormat, 150, 35, 40, 40);
+            } catch (err) {
+                console.error("Error adding image to PDF", err);
+            }
+        }
+
+        // Table Data
+        const tableData = [
+            ['Asset Code / รหัส', formData.asset_code || '-'],
+            ['Name / ชื่อทรัพย์สิน', formData.name || '-'],
+            ['Type / ประเภท', formData.type || '-'],
+            ['Brand / ยี่ห้อ', formData.brand || '-'],
+            ['Model / รุ่น', formData.model || '-'],
+            ['Serial Number', formData.serial_number || '-'],
+            ['Price / ราคา', formData.price ? `${Number(formData.price).toLocaleString()} THB` : '-'],
+            ['Purchase Date / วันที่ซื้อ', formData.purchase_date || '-'],
+            ['Location / สถานที่', formData.location || '-'],
+            ['Spec / สเปค', formData.spec || '-'],
+            ['Received Date / วันที่รับ', formData.received_date || '-'],
+            ['Return Date / วันที่คืน', formData.return_date || '-'],
+            ['Status / สถานะ', formData.status || '-'],
+            ['Notes / หมายเหตุ', formData.notes || '-'],
+        ];
+
+        doc.autoTable({
+            startY: yPos + 5,
+            head: [['Field / หัวข้อ', 'Detail / รายละเอียด']],
+            body: tableData,
+            theme: 'grid',
+            headStyles: { fillColor: [66, 66, 66] },
+        });
+
+        // Signature Section
+        yPos = doc.lastAutoTable.finalY + 20;
+
+        doc.text("Examined & Received By / ผู้ตรวจสอบและรับมอบ:", 14, yPos);
+        doc.text(`Name / ชื่อ: ${formData.assigned_to || '................................................'}`, 14, yPos + 10);
+
+        if (formData.signature) {
+            doc.addImage(formData.signature, 'PNG', 20, yPos + 15, 60, 30);
+            doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
+        } else if (sigPad.current && !sigPad.current.isEmpty()) {
+            doc.addImage(sigPad.current.toDataURL(), 'PNG', 20, yPos + 15, 60, 30);
+            doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
+        } else {
+            doc.text("................................................", 20, yPos + 40);
+            doc.text("(Signed / ลงชื่อ)", 30, yPos + 50);
+        }
+
+        doc.save(`Asset_Handover_${formData.asset_code || 'New'}.pdf`);
     };
 
     const handleSubmit = async (e) => {
@@ -324,6 +400,40 @@ const AssetForm = () => {
                         </div>
 
                         <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">สเปค / รายละเอียดเพิ่มเติม (Spec)</label>
+                            <textarea
+                                name="spec"
+                                value={formData.spec || ''}
+                                onChange={handleChange}
+                                className="w-full border p-2 rounded h-20 mb-4"
+                                placeholder="เช่น CPU i5, RAM 16GB, SSD 512GB"
+                            ></textarea>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-gray-700 text-sm font-bold mb-2">วันที่รับเข้า (Received Date)</label>
+                                <input
+                                    type="date"
+                                    name="received_date"
+                                    value={formData.received_date || ''}
+                                    onChange={handleChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-700 text-sm font-bold mb-2">วันที่คืน (Return Date)</label>
+                                <input
+                                    type="date"
+                                    name="return_date"
+                                    value={formData.return_date || ''}
+                                    onChange={handleChange}
+                                    className="w-full border p-2 rounded"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">หมายเหตุ</label>
                             <textarea
                                 name="notes"
@@ -334,6 +444,16 @@ const AssetForm = () => {
                         </div>
 
                         <div className="flex justify-end gap-3 pt-4">
+                            {isEditMode && (
+                                <button
+                                    type="button"
+                                    onClick={handleExportPDF}
+                                    className="px-4 py-2 text-white bg-green-600 rounded hover:bg-green-700 transition font-bold"
+                                >
+                                    <i className="fa-solid fa-file-pdf mr-2"></i>
+                                    Export PDF
+                                </button>
+                            )}
                             <button
                                 type="button"
                                 onClick={() => navigate('/')}

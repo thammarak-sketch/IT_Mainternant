@@ -67,6 +67,11 @@ async function setupDatabase() {
             if (!err.message.includes('duplicate column')) console.log("Warning (signature):", err.message);
         }
 
+        // Migration: Add spec, received_date, return_date
+        try { await db.query(`ALTER TABLE assets ADD COLUMN spec TEXT`); console.log("Added 'spec' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (spec):", err.message); }
+        try { await db.query(`ALTER TABLE assets ADD COLUMN received_date DATE`); console.log("Added 'received_date' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (received_date):", err.message); }
+        try { await db.query(`ALTER TABLE assets ADD COLUMN return_date DATE`); console.log("Added 'return_date' column."); } catch (err) { if (!err.message.includes('duplicate column')) console.log("Warning (return_date):", err.message); }
+
         // Assignments Table (History of who used what)
         await db.query(`
             CREATE TABLE IF NOT EXISTS assignments (

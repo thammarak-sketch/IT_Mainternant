@@ -81,6 +81,11 @@ async function setupDatabase() {
             if (err.code !== '42701') console.log("Warning: Could not add signature:", err.message);
         }
 
+        // Migration: Add spec, received_date, return_date
+        try { await pool.query(`ALTER TABLE assets ADD COLUMN spec TEXT`); console.log("Added 'spec' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (spec):", err.message); }
+        try { await pool.query(`ALTER TABLE assets ADD COLUMN received_date DATE`); console.log("Added 'received_date' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (received_date):", err.message); }
+        try { await pool.query(`ALTER TABLE assets ADD COLUMN return_date DATE`); console.log("Added 'return_date' column."); } catch (err) { if (err.code !== '42701') console.log("Warning (return_date):", err.message); }
+
         // Assignments Table
         await pool.query(`
             CREATE TABLE IF NOT EXISTS assignments (

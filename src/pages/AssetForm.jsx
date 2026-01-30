@@ -253,7 +253,7 @@ const AssetForm = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">ชื่อทรัพย์สิน *</label>
+                                <label className="block text-gray-700 text-sm font-bold mb-2">แผนกที่ใช้ (Department) *</label>
                                 <input
                                     required
                                     type="text"
@@ -261,29 +261,12 @@ const AssetForm = () => {
                                     value={formData.name || ''}
                                     onChange={handleChange}
                                     className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="เช่น MacBook Pro, Dell Monitor"
+                                    placeholder="เช่น แผนกบัญชี, คลังสินค้า"
                                 />
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">ประเภท *</label>
-                                <select
-                                    name="type"
-                                    value={formData.type || 'Laptop'}
-                                    onChange={handleChange}
-                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                >
-                                    <option value="Laptop">Laptop (โน้ตบุ๊ก)</option>
-                                    <option value="PC">PC (คอมพิวเตอร์ตั้งโต๊ะ)</option>
-                                    <option value="Monitor">Monitor (จอภาพ)</option>
-                                    <option value="Server">Server</option>
-                                    <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>
-                                    <option value="Software">Software (ซอฟต์แวร์)</option>
-                                    <option value="Other">Other (อื่นๆ)</option>
-                                </select>
-                            </div>
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">สถานะ</label>
                                 <select
@@ -299,9 +282,6 @@ const AssetForm = () => {
                                     <option value="lost">สูญหาย (Lost)</option>
                                 </select>
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">ยี่ห้อ (Brand)</label>
                                 <input
@@ -312,6 +292,9 @@ const AssetForm = () => {
                                     className="w-full border p-2 rounded"
                                 />
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">รุ่น (Model)</label>
                                 <input
@@ -322,9 +305,6 @@ const AssetForm = () => {
                                     className="w-full border p-2 rounded"
                                 />
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">Serial Number</label>
                                 <input
@@ -335,6 +315,9 @@ const AssetForm = () => {
                                     className="w-full border p-2 rounded"
                                 />
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">ราคา (บาท)</label>
                                 <input
@@ -345,9 +328,6 @@ const AssetForm = () => {
                                     className="w-full border p-2 rounded"
                                 />
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">วันที่ซื้อ</label>
                                 <input
@@ -358,6 +338,9 @@ const AssetForm = () => {
                                     className="w-full border p-2 rounded"
                                 />
                             </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">สถานที่เก็บ / ใช้งาน</label>
                                 <input
@@ -369,9 +352,6 @@ const AssetForm = () => {
                                     placeholder="เช่น แผนก IT, ห้อง Server"
                                 />
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">ผู้ใช้งาน / ผู้รับผิดชอบ (Assigned To)</label>
                                 <input
@@ -382,6 +362,28 @@ const AssetForm = () => {
                                     className="w-full border p-3 md:p-2 rounded focus:ring-2 focus:ring-blue-500"
                                     placeholder="ระบุชื่อผู้ใช้งาน"
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block text-gray-700 text-sm font-bold mb-2">ประเภท (Type) *</label>
+                                <select
+                                    name="type"
+                                    value={formData.type || 'Laptop'}
+                                    onChange={handleChange}
+                                    className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="Laptop">Laptop (โน้ตบุ๊ก)</option>
+                                    <option value="PC">PC (คอมพิวเตอร์ตั้งโต๊ะ)</option>
+                                    <option value="AllInOne">All-in-One</option>
+                                    <option value="Monitor">Monitor (จอภาพ)</option>
+                                    <option value="Tablet">Tablet</option>
+                                    <option value="Radio">วอร์ (Radio)</option>
+                                    <option value="Server">Server</option>
+                                    <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>
+                                    <option value="Software">Software (ซอฟต์แวร์)</option>
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">อีเมล (Email)</label>
@@ -459,7 +461,7 @@ const AssetForm = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">วันที่คืน (Return Date)</label>
+                                <label className="block text-gray-700 text-sm font-bold mb-2">วันที่เบิก (Withdrawal Date)</label>
                                 <input
                                     type="date"
                                     name="return_date"
@@ -570,7 +572,7 @@ const AssetForm = () => {
                                 <th className="border p-2 text-left" style={{ borderColor: '#d1d5db' }}>Detail / รายละเอียด</th>
                             </tr>
                             <tr>
-                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Asset Name (ชื่อ)</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Department (แผนกที่ใช้)</td>
                                 <td className="border p-2" style={{ borderColor: '#d1d5db' }}>{formData.name}</td>
                             </tr>
                             <tr>
@@ -590,9 +592,9 @@ const AssetForm = () => {
                                 <td className="border p-2 whitespace-pre-wrap" style={{ borderColor: '#d1d5db' }}>{formData.spec}</td>
                             </tr>
                             <tr>
-                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Dates (รับ/คืน)</td>
+                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Received / Withdrawal (รับเข้า/วันที่เบิก)</td>
                                 <td className="border p-2" style={{ borderColor: '#d1d5db' }}>
-                                    In: {formData.received_date} / Return: {formData.return_date}
+                                    In: {formData.received_date} / Withdrawal: {formData.return_date}
                                 </td>
                             </tr>
                             <tr>

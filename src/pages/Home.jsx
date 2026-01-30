@@ -80,11 +80,13 @@ const Home = () => {
                         <option value="">ทุกประเภท</option>
                         <option value="Laptop">Laptop (โน้ตบุ๊ก)</option>
                         <option value="PC">PC (คอมพิวเตอร์ตั้งโต๊ะ)</option>
+                        <option value="AllInOne">All-in-One</option>
                         <option value="Monitor">Monitor (จอภาพ)</option>
+                        <option value="Tablet">Tablet</option>
+                        <option value="Radio">วอร์ (Radio)</option>
                         <option value="Server">Server</option>
                         <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>
                         <option value="Software">Software (ซอฟต์แวร์)</option>
-                        <option value="Other">Other (อื่นๆ)</option>
                     </select>
                     <select
                         className="border p-2 rounded"
@@ -112,7 +114,7 @@ const Home = () => {
                                     รหัสทรัพย์สิน
                                 </th>
                                 <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    ชื่อ / รุ่น
+                                    แผนก / รุ่น
                                 </th>
                                 <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     ประเภท

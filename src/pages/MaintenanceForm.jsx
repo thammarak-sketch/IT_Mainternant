@@ -199,7 +199,10 @@ const MaintenanceForm = () => {
                                     >
                                         <option value="Laptop">Laptop (โน้ตบุ๊ก)</option>
                                         <option value="PC">PC (คอมพิวเตอร์ตั้งโต๊ะ)</option>
+                                        <option value="AllInOne">All-in-One</option>
                                         <option value="Monitor">Monitor (จอภาพ)</option>
+                                        <option value="Tablet">Tablet</option>
+                                        <option value="Radio">วอร์ (Radio)</option>
                                         <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>
                                     </select>
                                 </div>

@@ -103,7 +103,9 @@ const AssetForm = () => {
     };
 
     const sigPad = useRef(null);
-    const printRef = useRef();
+    const printRef = useRef(); // Keep for backward compatibility or remove if unused elsewhere
+    const printRef1 = useRef();
+    const printRef2 = useRef();
     const clearSignature = () => {
         if (sigPad.current) {
             sigPad.current.clear();
@@ -142,47 +144,40 @@ const AssetForm = () => {
 
     const handleExportPDF = async () => {
         try {
-            console.log("Generating PDF with html2canvas...");
-            if (!printRef.current) {
-                Swal.fire('Error', 'Print template not found', 'error');
+            console.log("Generating Multi-page PDF...");
+            if (!printRef1.current || !printRef2.current) {
+                Swal.fire('Error', 'Print templates not found', 'error');
                 return;
             }
 
-            // Temporarily set width to 210mm in pixels (approx 794px at 96dpi) for consistent capture
-            const canvas = await html2canvas(printRef.current, {
+            const doc = new jsPDF('p', 'mm', 'a4');
+            const pdfWidth = doc.internal.pageSize.getWidth();
+
+            // Page 1: Header + Basic Info + Stats Table
+            const canvas1 = await html2canvas(printRef1.current, {
                 scale: 2,
                 useCORS: true,
                 logging: false,
                 windowWidth: 794
             });
-            const imgData = canvas.toDataURL('image/png');
+            const imgData1 = canvas1.toDataURL('image/png');
+            const pdfImageHeight1 = (pdfWidth * canvas1.height) / canvas1.width;
+            doc.addImage(imgData1, 'PNG', 0, 0, pdfWidth, pdfImageHeight1);
 
-            const doc = new jsPDF('p', 'mm', 'a4');
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = doc.internal.pageSize.getHeight();
-
-            // Calculate height to maintain aspect ratio
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-            const pdfImageHeight = (pdfWidth * imgHeight) / imgWidth;
-
-            let heightLeft = pdfImageHeight;
-            let position = 0;
-
-            // Add the first page
-            doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfImageHeight);
-            heightLeft -= pdfHeight;
-
-            // Add more pages if the content exceeds one A4 page
-            while (heightLeft > 0) {
-                position -= pdfHeight;
-                doc.addPage();
-                doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfImageHeight);
-                heightLeft -= pdfHeight;
-            }
+            // Page 2: Notes + Software + Signature
+            doc.addPage();
+            const canvas2 = await html2canvas(printRef2.current, {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                windowWidth: 794
+            });
+            const imgData2 = canvas2.toDataURL('image/png');
+            const pdfImageHeight2 = (pdfWidth * canvas2.height) / canvas2.width;
+            doc.addImage(imgData2, 'PNG', 0, 0, pdfWidth, pdfImageHeight2);
 
             doc.save(`Asset_Handover_${formData.asset_code || 'New'}.pdf`);
-            console.log("PDF Generated Successfully");
+            console.log("Multi-page PDF Generated Successfully");
         } catch (error) {
             console.error("PDF Generation Error:", error);
             Swal.fire('Error', 'Could not generate PDF. Please check console.', 'error');
@@ -567,9 +562,10 @@ const AssetForm = () => {
                 </div>
             </div>
 
-            {/* Hidden Print Template */}
+            {/* Hidden Print Templates */}
             <div style={{ position: 'absolute', top: -10000, left: -10000 }}>
-                <div ref={printRef} className="w-[210mm] h-auto p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
+                {/* Page 1 Ref */}
+                <div ref={printRef1} className="w-[210mm] h-auto p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
                     {/* Header */}
                     <div className="text-center mb-8">
                         <h1 className="text-2xl font-bold mb-2">Asset Handover Form</h1>
@@ -600,8 +596,8 @@ const AssetForm = () => {
                         </div>
                     </div>
 
-                    {/* Details Table */}
-                    <table className="w-full border-collapse border mb-8 text-sm" style={{ borderColor: '#d1d5db' }}>
+                    {/* Details Table (Up to Status) */}
+                    <table className="w-full border-collapse border text-sm" style={{ borderColor: '#d1d5db' }}>
                         <tbody>
                             <tr style={{ backgroundColor: '#f3f4f6' }}>
                                 <th className="border p-2 text-left w-1/3" style={{ borderColor: '#d1d5db' }}>Field / หัวข้อ</th>
@@ -649,16 +645,23 @@ const AssetForm = () => {
                                 <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Status (สถานะ)</td>
                                 <td className="border p-2 capitalize" style={{ borderColor: '#d1d5db' }}>{formData.status}</td>
                             </tr>
-                            <tr>
-                                <td className="border p-2 font-bold" style={{ borderColor: '#d1d5db' }}>Notes (หมายเหตุ)</td>
-                                <td className="border p-2 whitespace-pre-wrap" style={{ borderColor: '#d1d5db' }}>{formData.notes}</td>
-                            </tr>
                         </tbody>
                     </table>
+                </div>
+
+                {/* Page 2 Ref */}
+                <div ref={printRef2} className="w-[210mm] h-auto p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
+                    {/* Notes Section moved to Page 2 */}
+                    <div className="mb-6">
+                        <h3 className="font-bold mb-2 text-sm border-b pb-1" style={{ borderColor: '#d1d5db' }}>Notes (หมายเหตุ):</h3>
+                        <div className="text-sm bg-gray-50 p-3 rounded border whitespace-pre-wrap min-h-[100px]" style={{ borderColor: '#d1d5db' }}>
+                            {formData.notes || '-'}
+                        </div>
+                    </div>
 
                     {/* Software Checkboxes in PDF */}
                     <div className="mb-8">
-                        <h3 className="font-bold mb-2 text-sm">Software Installed / โปรแกรมที่ใช้งาน:</h3>
+                        <h3 className="font-bold mb-2 text-sm border-b pb-1" style={{ borderColor: '#d1d5db' }}>Software Installed / โปรแกรมที่ใช้งาน:</h3>
                         <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-[10px] border p-3 rounded" style={{ borderColor: '#d1d5db' }}>
                             {softwareList.map(item => {
                                 const softwareObj = JSON.parse(formData.software || '{}');

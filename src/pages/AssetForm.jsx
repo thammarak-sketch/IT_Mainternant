@@ -28,7 +28,8 @@ const AssetForm = () => {
         return_date: '',
         email: '',
         is_pc: 0,
-        is_mobile: 0
+        is_mobile: 0,
+        software: '{}' // JSON string of installed software
     });
     const [image, setImage] = useState(null);
     const [preview, setPreview] = useState(null);
@@ -98,6 +99,19 @@ const AssetForm = () => {
             setImage(file);
             setPreview(URL.createObjectURL(file));
         }
+    };
+
+    const softwareList = [
+        "Windows 10", "Windows 11", "MS-Office", "Adobe Acrobat", "WinRAR", "ERP",
+        "Photo Shop", "illustrator", "AutoCAD", "Canva", "Capcut", "Line PC",
+        "MS-Team", "Zoom", "Chrome", "MS-Edge", "Google Drive", "AnyDesk",
+        "Fire Fox", "Google Sheets", "Google Docs", "FastStone Capture", "Nitro", "PhotoScape"
+    ];
+
+    const handleSoftwareChange = (item) => {
+        const currentSoftware = JSON.parse(formData.software || '{}');
+        const updatedSoftware = { ...currentSoftware, [item]: !currentSoftware[item] };
+        setFormData(prev => ({ ...prev, software: JSON.stringify(updatedSoftware) }));
     };
 
     const handleExportPDF = async () => {
@@ -446,6 +460,26 @@ const AssetForm = () => {
                         </div>
 
                         <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-4">โปรแกรมที่ใช้งาน</label>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 bg-gray-50 p-4 rounded-lg border">
+                                {softwareList.map(item => {
+                                    const softwareObj = JSON.parse(formData.software || '{}');
+                                    return (
+                                        <label key={item} className="flex items-center gap-2 cursor-pointer hover:bg-white p-1 rounded transition">
+                                            <input
+                                                type="checkbox"
+                                                checked={!!softwareObj[item]}
+                                                onChange={() => handleSoftwareChange(item)}
+                                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                            />
+                                            <span className="text-sm text-gray-700">{item}</span>
+                                        </label>
+                                    );
+                                })}
+                            </div>
+                        </div>
+
+                        <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">หมายเหตุ</label>
                             <textarea
                                 name="notes"
@@ -572,6 +606,24 @@ const AssetForm = () => {
                             </tr>
                         </tbody>
                     </table>
+
+                    {/* Software Checkboxes in PDF */}
+                    <div className="mb-8">
+                        <h3 className="font-bold mb-2 text-sm">Software Installed / โปรแกรมที่ใช้งาน:</h3>
+                        <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-[10px] border p-3 rounded" style={{ borderColor: '#d1d5db' }}>
+                            {softwareList.map(item => {
+                                const softwareObj = JSON.parse(formData.software || '{}');
+                                return (
+                                    <div key={item} className="flex items-center gap-1">
+                                        <span className="inline-block w-3 h-3 border text-center leading-[10px]" style={{ borderColor: '#000' }}>
+                                            {softwareObj[item] ? '✓' : ''}
+                                        </span>
+                                        <span>{item}</span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
 
                     {/* Signature Section */}
                     <div className="mt-12 border-t pt-8" style={{ borderColor: '#e5e7eb' }}>

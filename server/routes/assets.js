@@ -102,8 +102,8 @@ router.post('/', upload.single('image'), async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO assets (asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, image_path, assigned_to, signature, spec, received_date, return_date, email, is_pc, is_mobile)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO assets (asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, image_path, assigned_to, signature, spec, received_date, return_date, email, is_pc, is_mobile, software)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `;
         const result = await db.query(sql, [
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
@@ -111,7 +111,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             status || 'available', sanitize(location), sanitize(notes), image_path,
             sanitize(req.body.assigned_to), sanitize(req.body.signature),
             sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
-            sanitize(email), is_pc ? 1 : 0, is_mobile ? 1 : 0
+            sanitize(email), is_pc ? 1 : 0, is_mobile ? 1 : 0, sanitize(req.body.software)
         ]);
 
         res.status(201).json({ id: result[0].insertId, message: 'Asset created successfully', image_path });
@@ -146,9 +146,11 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 
         const sql = `
             UPDATE assets 
-            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=?, assigned_to=?, signature=?, spec=?, received_date=?, return_date=?, email=?, is_pc=?, is_mobile=? ${updateImageSql}
+            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=?, assigned_to=?, signature=?, spec=?, received_date=?, return_date=?, email=?, is_pc=?, is_mobile=?, software=? ${updateImageSql}
             WHERE id = ?
         `;
+
+        params.splice(19, 0, sanitize(req.body.software)); // Insert software before updateImageSql params
 
         params.push(req.params.id);
 

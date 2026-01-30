@@ -37,6 +37,7 @@ async function runMigrations() {
             ['assets', 'email', 'TEXT'],
             ['assets', 'is_pc', 'INTEGER DEFAULT 0'],
             ['assets', 'is_mobile', 'INTEGER DEFAULT 0'],
+            ['assets', 'software', 'TEXT'],
             // Registration Emails
             ['registration_emails', 'fullname', 'TEXT'],
             ['registration_emails', 'position', 'TEXT'],

@@ -47,11 +47,11 @@ router.post('/', async (req, res) => {
 
         res.status(201).json({ id: result[0].insertId, message: 'Email registered successfully' });
     } catch (err) {
-        if (err.message.includes('UNIQUE constraint failed')) {
-            return res.status(400).json({ error: 'This email is already registered' });
+        console.error('Registration Error:', err);
+        if (err.message.includes('UNIQUE constraint failed') || err.code === '23505' || err.message.includes('already exists')) {
+            return res.status(400).json({ error: 'อีเมลนี้ถูกลงทะเบียนไว้แล้ว (Email already registered)' });
         }
-        console.error(err);
-        res.status(500).json({ error: 'Failed to register email' });
+        res.status(500).json({ error: `Registration failed: ${err.message}` });
     }
 });
 

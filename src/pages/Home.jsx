@@ -134,7 +134,7 @@ const Home = () => {
                                     รหัสทรัพย์สิน
                                 </th>
                                 <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                    แผนก / รุ่น
+                                    ชื่อผู้ใช้งาน / แผนก
                                 </th>
                                 <th className="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                     ประเภท
@@ -176,9 +176,9 @@ const Home = () => {
                                             <div className="flex items-center">
                                                 <div className="ml-3">
                                                     <p className="text-gray-900 whitespace-no-wrap font-semibold">
-                                                        {asset.name}
+                                                        {asset.assigned_to || 'ไม่ระบุชื่อ'}
                                                     </p>
-                                                    <p className="text-gray-600 whitespace-no-wrap text-xs">{asset.brand} - {asset.model}</p>
+                                                    <p className="text-gray-600 whitespace-no-wrap text-xs">{asset.name}</p>
                                                 </div>
                                             </div>
                                         </td>
@@ -247,8 +247,8 @@ const Home = () => {
                                                         asset.status === 'retired' ? 'ตัดจำหน่าย' : 'สูญหาย'}
                                         </span>
                                     </div>
-                                    <h3 className="font-bold text-gray-900 truncate mb-1">{asset.name}</h3>
-                                    <p className="text-xs text-gray-500 mb-2 truncate">{asset.brand} - {asset.model}</p>
+                                    <h3 className="font-bold text-gray-900 truncate mb-1">{asset.assigned_to || 'ไม่ระบุชื่อ'}</h3>
+                                    <p className="text-xs text-gray-500 mb-2 truncate">{asset.name}</p>
 
                                     <div className="flex justify-between items-center mt-auto">
                                         <p className="text-sm font-semibold text-gray-900">฿{Number(asset.price).toLocaleString()}</p>

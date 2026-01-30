@@ -498,7 +498,8 @@ const Maintenance = () => {
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">วันที่</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">รายละเอียด</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">สถานะ</th>
-                            <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ผู้แจ้ง</th>
+                            <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ผู้แจ้ง / ติดต่อ</th>
+                            <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">สถานที่</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ผู้ซ่อม</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">วิธีการ/ค่าใช้จ่าย</th>
                             <th className="px-3 py-3 border-b-2 border-gray-200 bg-gray-100 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">จัดการ</th>
@@ -524,7 +525,11 @@ const Maintenance = () => {
                                         {getStatusBadge(log)}
                                     </td>
                                     <td className="px-3 py-4 border-b border-gray-200 bg-white text-sm">
-                                        <div className="text-xs transition-colors duration-200 group-hover:text-blue-600">{log.reporter_name}</div>
+                                        <div className="font-medium">{log.reporter_name}</div>
+                                        <div className="text-xs text-blue-600">{log.contact_info || '-'}</div>
+                                    </td>
+                                    <td className="px-3 py-4 border-b border-gray-200 bg-white text-sm">
+                                        <div className="text-xs">{log.location || '-'}</div>
                                     </td>
                                     <td className="px-3 py-4 border-b border-gray-200 bg-white text-sm">
                                         <div className="text-xs font-medium text-blue-600 italic">{log.technician_name || '-'}</div>
@@ -585,7 +590,8 @@ const Maintenance = () => {
                                 <p className="text-sm text-gray-600">{log.description}</p>
                             </div>
                             <div className="text-xs text-gray-500 mb-2">
-                                <div>ผู้แจ้ง: {log.reporter_name}</div>
+                                <div>ผู้แจ้ง: {log.reporter_name} ({log.contact_info || '-'})</div>
+                                <div>สถานที่: {log.location || '-'}</div>
                                 <div>ช่าง: {log.technician_name || '-'}</div>
                             </div>
                             <div className="flex justify-between items-center bg-gray-50 p-2 rounded mb-3 text-sm">

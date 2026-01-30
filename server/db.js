@@ -40,37 +40,53 @@ const pool = {
     query: (sql, params = []) => {
         return new Promise((resolve, reject) => {
             const normalizedSql = convertQuery(sql);
+            const upperSql = sql.trim().toUpperCase();
+            const queryType = upperSql.split(' ')[0];
+            const hasReturning = upperSql.includes('RETURNING');
 
             if (isPostgres) {
                 // PostgreSQL Query
                 db.query(normalizedSql, params)
                     .then(res => {
-                        // Normalize result to match our app's expectation [rows, fields]
-                        // INSERT/UPDATE returns different structure in pg vs sqlite wrapper
-                        if (sql.trim().toUpperCase().startsWith('SELECT')) {
+                        if (queryType === 'SELECT') {
                             resolve([res.rows]);
                         } else {
-                            // Validating insertId for Postgres usually requires RETURNING id
-                            // For now, we simulate basic success response
-                            // Ideally, queries should be updated to use RETURNING id
+                            // Normalize insertId: check rows[0] if RETURNING was used
+                            const row = res.rows && res.rows[0];
+                            const insertId = row ? (row.id || row.insertid || 0) : 0;
                             resolve([{
                                 affectedRows: res.rowCount,
-                                insertId: res.rows[0]?.id || 0 // Warning: requries RETURNING id in SQL
+                                insertId: insertId
                             }]);
                         }
                     })
-                    .catch(reject);
+                    .catch(err => {
+                        console.error(`Postgres Query Error: ${err.message}\nSQL: ${normalizedSql}`);
+                        reject(err);
+                    });
             } else {
-                // SQLite Query (Original Logic)
-                const queryType = sql.trim().split(' ')[0].toUpperCase();
-                if (queryType === 'SELECT') {
+                // SQLite Query
+                if (queryType === 'SELECT' || hasReturning) {
                     db.all(sql, params, (err, rows) => {
-                        if (err) return reject(err);
-                        resolve([rows]);
+                        if (err) {
+                            console.error(`SQLite Query Error: ${err.message}\nSQL: ${sql}`);
+                            return reject(err);
+                        }
+                        if (hasReturning && queryType === 'INSERT') {
+                            resolve([{
+                                affectedRows: 1,
+                                insertId: rows[0]?.id || rows[0]?.ID || 0
+                            }]);
+                        } else {
+                            resolve([rows]);
+                        }
                     });
                 } else {
                     db.run(sql, params, function (err) {
-                        if (err) return reject(err);
+                        if (err) {
+                            console.error(`SQLite Exec Error: ${err.message}\nSQL: ${sql}`);
+                            return reject(err);
+                        }
                         resolve([{
                             affectedRows: this.changes,
                             insertId: this.lastID

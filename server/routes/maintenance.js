@@ -89,6 +89,7 @@ router.post('/', async (req, res) => {
             const assetSql = `
                 INSERT INTO assets (asset_code, name, type, brand, model, status, location, purchase_date, email, is_pc, is_mobile)
                 VALUES (?, ?, ?, 'Generic', 'Generic', 'assigned', ?, ?, ?, ?, ?)
+                RETURNING id
             `;
 
             const assetResult = await db.query(assetSql, [
@@ -106,6 +107,7 @@ router.post('/', async (req, res) => {
         const sql = `
             INSERT INTO maintenance_logs (asset_id, description, cost, log_date, status, reporter_name, contact_info, department, service_type, repair_method, created_at, location)
             VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?)
+            RETURNING id
         `;
         const result = await db.query(sql, [
             finalAssetId, description, cost, log_date || new Date().toISOString(),
@@ -141,10 +143,22 @@ router.post('/', async (req, res) => {
             console.error('Failed to send LINE Flex notification:', notifyErr.message);
         }
 
-        res.status(201).json({ id: result[0].insertId, message: 'Maintenance log added successfully' });
+        res.status(201).json({
+            id: result[0].insertId,
+            message: 'Maintenance log added successfully',
+            asset_id: finalAssetId
+        });
     } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Failed to add maintenance log', details: err.message });
+        console.error("MAINTENANCE CREATE ERROR:", {
+            message: err.message,
+            stack: err.stack,
+            body: req.body
+        });
+        res.status(500).json({
+            error: 'Failed to add maintenance log',
+            details: err.message,
+            hint: 'Please check server logs for full details'
+        });
     }
 });
 

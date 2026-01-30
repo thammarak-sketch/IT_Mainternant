@@ -38,6 +38,11 @@ async function runMigrations() {
             ['assets', 'is_pc', 'INTEGER DEFAULT 0'],
             ['assets', 'is_mobile', 'INTEGER DEFAULT 0'],
             ['assets', 'software', 'TEXT'],
+            ['assets', 'brand', 'TEXT'],
+            ['assets', 'model', 'TEXT'],
+            ['assets', 'status', 'TEXT DEFAULT \'available\''],
+            ['assets', 'location', 'TEXT'],
+            ['assets', 'purchase_date', 'TEXT'],
             // Registration Emails
             ['registration_emails', 'fullname', 'TEXT'],
             ['registration_emails', 'position', 'TEXT'],
@@ -53,7 +58,14 @@ async function runMigrations() {
             ['maintenance_logs', 'repair_method', 'TEXT'],
             ['maintenance_logs', 'signer_name', 'TEXT'],
             ['maintenance_logs', 'service_type', 'TEXT DEFAULT \'repair\''],
-            ['maintenance_logs', 'location', 'TEXT']
+            ['maintenance_logs', 'location', 'TEXT'],
+            ['maintenance_logs', 'cost', 'TEXT'],
+            ['maintenance_logs', 'log_date', 'TEXT'],
+            ['maintenance_logs', 'status', 'TEXT DEFAULT \'pending\''],
+            ['maintenance_logs', 'reporter_name', 'TEXT'],
+            ['maintenance_logs', 'contact_info', 'TEXT'],
+            ['maintenance_logs', 'department', 'TEXT'],
+            ['maintenance_logs', 'created_at', 'TEXT'],
         ];
 
         for (const [table, col, type] of migrations) {

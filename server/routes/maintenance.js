@@ -36,7 +36,7 @@ router.get('/', async (req, res) => {
 // CREATE maintenance log
 router.post('/', async (req, res) => {
     try {
-        const { asset_id, description, cost, log_date, reporter_name, contact_info, department, service_type, new_employee_name, asset_type, email, is_pc, is_mobile } = req.body;
+        const { asset_id, description, cost, log_date, reporter_name, contact_info, department, service_type, new_employee_name, asset_type, email, is_pc, is_mobile, location } = req.body;
 
         let finalAssetId = asset_id;
 
@@ -73,7 +73,7 @@ router.post('/', async (req, res) => {
             `;
 
             const assetResult = await db.query(assetSql, [
-                newAssetCode, newAssetName, asset_type, department || 'IT', new Date().toISOString(),
+                newAssetCode, newAssetName, asset_type, location || 'Office', new Date().toISOString(),
                 email || null, is_pc ? 1 : 0, is_mobile ? 1 : 0
             ]);
 
@@ -85,12 +85,12 @@ router.post('/', async (req, res) => {
         }
 
         const sql = `
-            INSERT INTO maintenance_logs (asset_id, description, cost, log_date, status, reporter_name, contact_info, department, service_type, repair_method, created_at)
-            VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?)
+            INSERT INTO maintenance_logs (asset_id, description, cost, log_date, status, reporter_name, contact_info, department, service_type, repair_method, created_at, location)
+            VALUES (?, ?, ?, ?, 'pending', ?, ?, ?, ?, ?, ?, ?)
         `;
         const result = await db.query(sql, [
             finalAssetId, description, cost, log_date || new Date().toISOString(),
-            reporter_name, contact_info, department, service_type || 'repair', req.body.repair_method || 'internal', new Date().toISOString()
+            reporter_name, contact_info, department, service_type || 'repair', req.body.repair_method || 'internal', new Date().toISOString(), location
         ]);
 
         if (service_type === 'repair' || !service_type) {

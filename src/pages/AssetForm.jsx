@@ -15,6 +15,13 @@ const AssetForm = () => {
         'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก'
     ];
 
+    const locations = [
+        '55/38ชั้น 1', '55/38ชั้น 2', '55/38ชั้น 3', '55/39ชั้น 1', '55/39ชั้น 2', '55/39ชั้น 3',
+        '55/37ชั้น 1', '55/37ชั้น 2', '55/37ชั้น 3', '55/44ชั้น 1', '55/44ชั้น 2', '55/44ชั้น 3',
+        '55/43ชั้น 1', '55/43ชั้น 2', '55/43ชั้น 3', '55/70 ชั้น 1', '55/70 ชั้น 2', '55/70 ชั้น 3',
+        'CT-28', 'Dercos-28', '88-1', '88-2', '88-3', '88-4', '88-5', '88-6'
+    ];
+
     const [formData, setFormData] = useState({
         asset_code: '',
         name: '',
@@ -349,15 +356,18 @@ const AssetForm = () => {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">สถานที่เก็บ / ใช้งาน</label>
-                                <input
-                                    type="text"
+                                <label className="block text-gray-700 font-bold mb-2">Location (สถานที่ตั้ง)</label>
+                                <select
                                     name="location"
                                     value={formData.location || ''}
                                     onChange={handleChange}
-                                    className="w-full border p-2 rounded"
-                                    placeholder="เช่น แผนก IT, ห้อง Server"
-                                />
+                                    className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">เลือกสถานที่</option>
+                                    {locations.map(loc => (
+                                        <option key={loc} value={loc}>{loc}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">ผู้ใช้งาน / ผู้รับผิดชอบ (Assigned To)</label>

@@ -18,6 +18,7 @@ const PublicReport = () => {
         reporter_name: '',
         contact_info: '',
         department: '',
+        location: '',
         cost: 0,
         // New Service Fields
         new_employee_name: '',
@@ -29,6 +30,13 @@ const PublicReport = () => {
 
     const departments = [
         'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก'
+    ];
+
+    const locations = [
+        '55/38ชั้น 1', '55/38ชั้น 2', '55/38ชั้น 3', '55/39ชั้น 1', '55/39ชั้น 2', '55/39ชั้น 3',
+        '55/37ชั้น 1', '55/37ชั้น 2', '55/37ชั้น 3', '55/44ชั้น 1', '55/44ชั้น 2', '55/44ชั้น 3',
+        '55/43ชั้น 1', '55/43ชั้น 2', '55/43ชั้น 3', '55/70 ชั้น 1', '55/70 ชั้น 2', '55/70 ชั้น 3',
+        'CT-28', 'Dercos-28', '88-1', '88-2', '88-3', '88-4', '88-5', '88-6'
     ];
 
     useEffect(() => {
@@ -104,6 +112,7 @@ const PublicReport = () => {
                 reporter_name: '',
                 contact_info: '',
                 department: '',
+                location: '', // Reset location
                 cost: 0,
                 new_employee_name: '',
                 asset_type: 'Laptop',
@@ -283,7 +292,7 @@ const PublicReport = () => {
                                 </div>
                             )}
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> {/* Changed to 3 columns */}
                                 <div>
                                     <label className="block text-gray-700 font-bold mb-2">ชื่อผู้แจ้ง *</label>
                                     <input
@@ -297,17 +306,32 @@ const PublicReport = () => {
                                     />
                                 </div>
                                 <div>
-                                    <label className="block text-gray-700 font-bold mb-2">แผนก *</label>
+                                    <label className="block text-gray-700 font-bold mb-2">แผนกที่แจ้ง *</label>
                                     <select
                                         name="department"
                                         value={formData.department}
                                         onChange={handleChange}
                                         required
-                                        className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
                                     >
-                                        <option value="">-- เลือกแผนก --</option>
+                                        <option value="">เลือกแผนก</option>
                                         {departments.map(dept => (
                                             <option key={dept} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-gray-700 font-bold mb-2">สถานที่ / ชั้น *</label>
+                                    <select
+                                        name="location"
+                                        value={formData.location}
+                                        onChange={handleChange}
+                                        required
+                                        className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
+                                    >
+                                        <option value="">เลือกสถานที่</option>
+                                        {locations.map(loc => (
+                                            <option key={loc} value={loc}>{loc}</option>
                                         ))}
                                     </select>
                                 </div>
@@ -384,6 +408,7 @@ const PublicReport = () => {
                                         <tr>
                                             <th className="py-3 px-4 text-left">เวลา</th>
                                             <th className="py-3 px-4 text-left">ประเภท</th>
+                                            <th className="py-3 px-4 text-left">สถานที่</th> {/* Added Location Header */}
                                             <th className="py-3 px-4 text-left">สถานะ</th>
                                             <th className="py-3 px-4 text-left">ผู้แจ้ง</th>
                                         </tr>
@@ -399,6 +424,7 @@ const PublicReport = () => {
                                                         {log.service_type === 'new_setup' ? 'ติดตั้งใหม่' : log.service_type === 'service' ? 'บริการ' : 'ซ่อม'}
                                                     </span>
                                                 </td>
+                                                <td className="py-3 px-4 text-gray-600">{log.location || '-'}</td> {/* Added Location Data */}
                                                 <td className="py-3 px-4">
                                                     <span className={`px-2 py-1 rounded-full text-xs font-semibold ${log.status === 'completed' ? 'bg-green-100 text-green-800' :
                                                         log.status === 'in_progress' ? 'bg-yellow-100 text-yellow-800' :

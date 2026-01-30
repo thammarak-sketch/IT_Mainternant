@@ -52,7 +52,8 @@ async function runMigrations() {
             ['maintenance_logs', 'signature', 'TEXT'],
             ['maintenance_logs', 'repair_method', 'TEXT'],
             ['maintenance_logs', 'signer_name', 'TEXT'],
-            ['maintenance_logs', 'service_type', 'TEXT DEFAULT \'repair\'']
+            ['maintenance_logs', 'service_type', 'TEXT DEFAULT \'repair\''],
+            ['maintenance_logs', 'location', 'TEXT']
         ];
 
         for (const [table, col, type] of migrations) {

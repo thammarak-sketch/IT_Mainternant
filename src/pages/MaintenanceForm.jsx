@@ -21,12 +21,20 @@ const MaintenanceForm = () => {
         email: '',
         is_pc: 0,
         is_mobile: 0,
-        repair_method: 'internal'
+        repair_method: 'internal',
+        location: ''
     });
     const [hasCost, setHasCost] = useState(false);
 
     const departments = [
         'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก'
+    ];
+
+    const locations = [
+        '55/38ชั้น 1', '55/38ชั้น 2', '55/38ชั้น 3', '55/39ชั้น 1', '55/39ชั้น 2', '55/39ชั้น 3',
+        '55/37ชั้น 1', '55/37ชั้น 2', '55/37ชั้น 3', '55/44ชั้น 1', '55/44ชั้น 2', '55/44ชั้น 3',
+        '55/43ชั้น 1', '55/43ชั้น 2', '55/43ชั้น 3', '55/70 ชั้น 1', '55/70 ชั้น 2', '55/70 ชั้น 3',
+        'CT-28', 'Dercos-28', '88-1', '88-2', '88-3', '88-4', '88-5', '88-6'
     ];
 
     useEffect(() => {
@@ -152,6 +160,21 @@ const MaintenanceForm = () => {
                                 <option value="">เลือกแผนก...</option>
                                 {departments.map((dept) => (
                                     <option key={dept} value={dept}>{dept}</option>
+                                ))}
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2">สถานที่ / ชั้น *</label>
+                            <select
+                                name="location"
+                                value={formData.location}
+                                onChange={handleChange}
+                                required
+                                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">เลือกสถานที่</option>
+                                {locations.map(loc => (
+                                    <option key={loc} value={loc}>{loc}</option>
                                 ))}
                             </select>
                         </div>

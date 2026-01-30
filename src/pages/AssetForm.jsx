@@ -145,7 +145,15 @@ const AssetForm = () => {
     // Helper to clean malformed URLs/DataURIs that might cause 431 errors
     const cleanUrl = (url) => {
         if (!url || typeof url !== 'string') return url;
-        return url.replace(/["'}]/g, '').trim();
+        // Strip common malformed characters from JSON-wrapped strings
+        let cleaned = url.replace(/["'}{]/g, '').trim();
+        // If it looks like base64 but missing prefix, try to fix it, or discard if it will cause 431
+        if (cleaned.length > 50 && !cleaned.startsWith('data:') && !cleaned.startsWith('http') && !cleaned.startsWith('/')) {
+            // If it's very long and lacks a protocol, it's likely a corrupted Data URI. 
+            // Clearing it prevents the browser from trying to fetch it as a massive URL path (431 error).
+            return '';
+        }
+        return cleaned;
     };
 
     const handleExportPDF = async () => {
@@ -166,26 +174,30 @@ const AssetForm = () => {
                 logging: false,
                 windowWidth: 794,
                 onclone: (clonedDoc) => {
-                    // 1. Fix oklch incompatibility in Tailwind v4
-                    // Scan and remove oklch variables from <style> tags
-                    const styleTags = clonedDoc.getElementsByTagName('style');
-                    for (let style of styleTags) {
-                        if (style.innerHTML.includes('oklch')) {
-                            // Replace oklch() calls with a safe hex fallback
-                            style.innerHTML = style.innerHTML.replace(/oklch\([^)]+\)/g, '#333333');
+                    // 1. Force black/white/hex defaults to prevent oklch inheritance
+                    const style = clonedDoc.createElement('style');
+                    style.innerHTML = `
+                        * { 
+                            color: #000000 !important; 
+                            border-color: #d1d5db !important; 
+                            background-image: none !important;
+                            box-shadow: none !important;
                         }
-                    }
+                        [style*="background-color"], th {
+                            background-color: #f3f4f6 !important;
+                        }
+                    `;
+                    clonedDoc.head.appendChild(style);
 
-                    // 2. Fix inline oklch styles on elements
-                    const elements = clonedDoc.getElementsByTagName('*');
-                    for (let el of elements) {
-                        const style = el.style;
-                        if (style) {
-                            if (style.color && style.color.includes('oklch')) style.color = '#333333';
-                            if (style.backgroundColor && style.backgroundColor.includes('oklch')) style.backgroundColor = 'transparent';
-                            if (style.borderColor && style.borderColor.includes('oklch')) style.borderColor = '#d1d5db';
-                        }
-                    }
+                    // 2. Aggressively strip oklch from all style tags
+                    const styleTags = Array.from(clonedDoc.getElementsByTagName('style'));
+                    styleTags.forEach(tag => {
+                        try {
+                            if (tag.innerHTML.includes('oklch')) {
+                                tag.innerHTML = tag.innerHTML.replace(/oklch\([^)]+\)/g, '#333333');
+                            }
+                        } catch (e) { /* ignore read-only styles */ }
+                    });
                 }
             };
 
@@ -684,24 +696,24 @@ const AssetForm = () => {
                 <div ref={printRef2} className="w-[210mm] h-auto p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
                     {/* Notes Section moved to Page 2 */}
                     <div className="mb-6">
-                        <h3 className="font-bold mb-2 text-sm border-b pb-1" style={{ borderColor: '#d1d5db' }}>Notes (หมายเหตุ):</h3>
-                        <div className="text-sm bg-gray-50 p-3 rounded border whitespace-pre-wrap min-h-[100px]" style={{ borderColor: '#d1d5db' }}>
+                        <h3 className="font-bold mb-2 text-sm border-b pb-1" style={{ borderColor: '#d1d5db', color: '#000000' }}>Notes (หมายเหตุ):</h3>
+                        <div className="text-sm p-3 rounded border whitespace-pre-wrap min-h-[100px]" style={{ borderColor: '#d1d5db', backgroundColor: '#f9fafb', color: '#000000' }}>
                             {formData.notes || '-'}
                         </div>
                     </div>
 
                     {/* Software Checkboxes in PDF */}
                     <div className="mb-8">
-                        <h3 className="font-bold mb-2 text-sm border-b pb-1" style={{ borderColor: '#d1d5db' }}>Software Installed / โปรแกรมที่ใช้งาน:</h3>
-                        <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-[10px] border p-3 rounded" style={{ borderColor: '#d1d5db' }}>
+                        <h3 className="font-bold mb-2 text-sm border-b pb-1" style={{ borderColor: '#d1d5db', color: '#000000' }}>Software Installed / โปรแกรมที่ใช้งาน:</h3>
+                        <div className="grid grid-cols-4 gap-x-2 gap-y-1 text-[10px] border p-3 rounded" style={{ borderColor: '#d1d5db', color: '#000000' }}>
                             {softwareList.map(item => {
                                 const softwareObj = JSON.parse(formData.software || '{}');
                                 return (
                                     <div key={item} className="flex items-center gap-1">
-                                        <span className="inline-block w-3 h-3 border text-center leading-[10px]" style={{ borderColor: '#000' }}>
+                                        <span className="inline-block w-3 h-3 border text-center leading-[10px]" style={{ borderColor: '#000', color: '#000' }}>
                                             {softwareObj[item] ? '✓' : ''}
                                         </span>
-                                        <span>{item}</span>
+                                        <span style={{ color: '#000000' }}>{item}</span>
                                     </div>
                                 );
                             })}

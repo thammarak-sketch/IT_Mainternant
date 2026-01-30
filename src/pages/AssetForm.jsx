@@ -159,13 +159,28 @@ const AssetForm = () => {
 
             const doc = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = doc.internal.pageSize.getWidth();
+            const pdfHeight = doc.internal.pageSize.getHeight();
 
             // Calculate height to maintain aspect ratio
             const imgWidth = canvas.width;
             const imgHeight = canvas.height;
             const pdfImageHeight = (pdfWidth * imgHeight) / imgWidth;
 
-            doc.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfImageHeight);
+            let heightLeft = pdfImageHeight;
+            let position = 0;
+
+            // Add the first page
+            doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfImageHeight);
+            heightLeft -= pdfHeight;
+
+            // Add more pages if the content exceeds one A4 page
+            while (heightLeft > 0) {
+                position -= pdfHeight;
+                doc.addPage();
+                doc.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfImageHeight);
+                heightLeft -= pdfHeight;
+            }
+
             doc.save(`Asset_Handover_${formData.asset_code || 'New'}.pdf`);
             console.log("PDF Generated Successfully");
         } catch (error) {

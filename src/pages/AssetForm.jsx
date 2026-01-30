@@ -142,6 +142,12 @@ const AssetForm = () => {
         setFormData(prev => ({ ...prev, software: JSON.stringify(updatedSoftware) }));
     };
 
+    // Helper to clean malformed URLs/DataURIs that might cause 431 errors
+    const cleanUrl = (url) => {
+        if (!url || typeof url !== 'string') return url;
+        return url.replace(/["'}]/g, '').trim();
+    };
+
     const handleExportPDF = async () => {
         try {
             console.log("Generating Multi-page PDF...");
@@ -153,25 +159,45 @@ const AssetForm = () => {
             const doc = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = doc.internal.pageSize.getWidth();
 
-            // Page 1: Header + Basic Info + Stats Table
-            const canvas1 = await html2canvas(printRef1.current, {
+            // Configuration for html2canvas to avoid oklch errors and improve performance
+            const html2canvasOptions = {
                 scale: 2,
                 useCORS: true,
                 logging: false,
-                windowWidth: 794
-            });
+                windowWidth: 794,
+                onclone: (clonedDoc) => {
+                    // 1. Fix oklch incompatibility in Tailwind v4
+                    // Scan and remove oklch variables from <style> tags
+                    const styleTags = clonedDoc.getElementsByTagName('style');
+                    for (let style of styleTags) {
+                        if (style.innerHTML.includes('oklch')) {
+                            // Replace oklch() calls with a safe hex fallback
+                            style.innerHTML = style.innerHTML.replace(/oklch\([^)]+\)/g, '#333333');
+                        }
+                    }
+
+                    // 2. Fix inline oklch styles on elements
+                    const elements = clonedDoc.getElementsByTagName('*');
+                    for (let el of elements) {
+                        const style = el.style;
+                        if (style) {
+                            if (style.color && style.color.includes('oklch')) style.color = '#333333';
+                            if (style.backgroundColor && style.backgroundColor.includes('oklch')) style.backgroundColor = 'transparent';
+                            if (style.borderColor && style.borderColor.includes('oklch')) style.borderColor = '#d1d5db';
+                        }
+                    }
+                }
+            };
+
+            // Page 1: Header + Basic Info + Stats Table
+            const canvas1 = await html2canvas(printRef1.current, html2canvasOptions);
             const imgData1 = canvas1.toDataURL('image/png');
             const pdfImageHeight1 = (pdfWidth * canvas1.height) / canvas1.width;
             doc.addImage(imgData1, 'PNG', 0, 0, pdfWidth, pdfImageHeight1);
 
             // Page 2: Notes + Software + Signature
             doc.addPage();
-            const canvas2 = await html2canvas(printRef2.current, {
-                scale: 2,
-                useCORS: true,
-                logging: false,
-                windowWidth: 794
-            });
+            const canvas2 = await html2canvas(printRef2.current, html2canvasOptions);
             const imgData2 = canvas2.toDataURL('image/png');
             const pdfImageHeight2 = (pdfWidth * canvas2.height) / canvas2.width;
             doc.addImage(imgData2, 'PNG', 0, 0, pdfWidth, pdfImageHeight2);
@@ -180,7 +206,12 @@ const AssetForm = () => {
             console.log("Multi-page PDF Generated Successfully");
         } catch (error) {
             console.error("PDF Generation Error:", error);
-            Swal.fire('Error', 'Could not generate PDF. Please check console.', 'error');
+            // Provide context for oklch error if it persists
+            if (error.message && error.message.includes('oklch')) {
+                Swal.fire('PDF Error', 'Browser CSS (oklch) conflict. Please refresh and try again.', 'error');
+            } else {
+                Swal.fire('Error', 'Could not generate PDF. Please check console.', 'error');
+            }
         }
     };
 
@@ -577,7 +608,7 @@ const AssetForm = () => {
                     <div className="flex gap-6 mb-8 items-start">
                         {preview ? (
                             <div className="w-40 h-40 flex-shrink-0 border rounded flex items-center justify-center overflow-hidden" style={{ borderColor: '#d1d5db', backgroundColor: '#f3f4f6' }}>
-                                <img src={preview} alt="Asset" className="w-full h-full object-cover" />
+                                <img src={cleanUrl(preview)} alt="Asset" className="w-full h-full object-cover" />
                             </div>
                         ) : (
                             <div className="w-40 h-40 flex-shrink-0 border rounded flex items-center justify-center" style={{ borderColor: '#d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af' }}>
@@ -688,9 +719,9 @@ const AssetForm = () => {
                         <div className="mt-8 flex flex-col items-center w-64">
                             <div className="h-32 w-full border border-dashed flex items-center justify-center mb-2 overflow-hidden" style={{ borderColor: '#9ca3af' }}>
                                 {formData.signature ? (
-                                    <img src={formData.signature} alt="Signature" className="object-contain h-full w-full" />
+                                    <img src={cleanUrl(formData.signature)} alt="Signature" className="object-contain h-full w-full" />
                                 ) : (sigPad.current && typeof sigPad.current.isEmpty === 'function' && !sigPad.current.isEmpty()) ? (
-                                    <img src={sigPad.current.toDataURL()} alt="Current Sig" className="object-contain h-full w-full" />
+                                    <img src={cleanUrl(sigPad.current.toDataURL())} alt="Current Sig" className="object-contain h-full w-full" />
                                 ) : (
                                     <span className="text-sm" style={{ color: '#9ca3af' }}>Signature / ลายเซ็น</span>
                                 )}

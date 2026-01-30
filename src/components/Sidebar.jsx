@@ -31,7 +31,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
     // Close sidebar on link click (mobile only)
     const handleLinkClick = () => {
-        if (window.innerWidth < 768 && setIsOpen) {
+        if (window.innerWidth < 1024 && setIsOpen) {
             setIsOpen(false);
         }
     };
@@ -39,10 +39,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     return (
         <div className={`
             bg-slate-800 text-white w-64 min-h-screen flex flex-col fixed left-0 top-0 overflow-y-auto z-30 transition-transform duration-300 ease-in-out
-            ${isOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 md:h-screen
+            ${isOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 lg:h-screen
         `}>
             {/* Logo / Header (Hidden on mobile inside sidebar as it's in top bar) */}
-            <div className="hidden md:block p-6 border-b border-slate-700">
+            <div className="hidden lg:block p-6 border-b border-slate-700">
                 <h1 className="text-2xl font-bold flex items-center gap-2">
                     <i className="fa-solid fa-laptop-code text-blue-400"></i>
                     ITAssist

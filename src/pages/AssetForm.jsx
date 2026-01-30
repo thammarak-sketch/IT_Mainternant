@@ -75,7 +75,7 @@ const AssetForm = () => {
                                     console.error("Signature load error:", e);
                                 }
                             }
-                        }, 800); // Increased delay for stability
+                        }, 1200); // Increased delay for tablet/mobile stability
                     }
                 } catch (error) {
                     Swal.fire('Error', 'Failed to fetch asset details', 'error');

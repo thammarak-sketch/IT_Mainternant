@@ -10,7 +10,7 @@ const BottomNav = () => {
     };
 
     return (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-between items-center z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-safe">
+        <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-between items-center z-30 shadow-[0_-2px_10px_rgba(0,0,0,0.05)] pb-safe">
             <NavLink to="/" className={getNavLinkClass}>
                 <i className="fa-solid fa-list text-lg mb-1"></i>
                 <span>ทรัพย์สิน</span>

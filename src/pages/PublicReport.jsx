@@ -80,6 +80,7 @@ const PublicReport = () => {
         const results = assets.filter(asset =>
             asset.asset_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
             asset.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (asset.assigned_to && asset.assigned_to.toLowerCase().includes(searchTerm.toLowerCase())) ||
             (asset.serial_number && asset.serial_number.toLowerCase().includes(searchTerm.toLowerCase()))
         );
         setFilteredAssets(results);
@@ -279,7 +280,7 @@ const PublicReport = () => {
                                         <option value="" disabled>-- คลิกเลือกทรัพย์สินจากรายการ --</option>
                                         {filteredAssets.map(asset => (
                                             <option key={asset.id} value={asset.id} className="p-2 border-b cursor-pointer hover:bg-blue-100">
-                                                {asset.asset_code} | {asset.name}
+                                                {asset.asset_code} | {asset.assigned_to || 'ไม่ระบุชื่อ'} ({asset.name})
                                             </option>
                                         ))}
                                     </select>

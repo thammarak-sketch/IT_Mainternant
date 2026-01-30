@@ -116,9 +116,9 @@ router.post('/', async (req, res) => {
             await db.query(`UPDATE assets SET status = 'repair' WHERE id = ?`, [finalAssetId]);
         }
 
-        // Send LINE Notification
+        // Send LINE Notification (Flex Message Card)
         try {
-            const { sendLineNotification } = require('../services/lineNotify');
+            const { sendLineFlexNotification } = require('../services/lineNotify');
 
             // Fetch asset_code for better notification
             let assetCode = 'N/A';
@@ -129,10 +129,16 @@ router.post('/', async (req, res) => {
                 }
             }
 
-            const notifyMsg = `🔔 มีการแจ้งซ่อมใหม่!\n\nรหัสทรัพย์สิน: ${assetCode}\nอาการ: ${description}\nผู้แจ้ง: ${reporter_name}\n\nตรวจสอบรายละเอียดได้ที่เว็บไซต์`;
-            await sendLineNotification(notifyMsg);
+            await sendLineFlexNotification({
+                service_type: service_type || 'repair',
+                reporter_name,
+                location,
+                description,
+                asset_code: assetCode,
+                status: 'pending'
+            });
         } catch (notifyErr) {
-            console.error('Failed to send notification:', notifyErr.message);
+            console.error('Failed to send LINE Flex notification:', notifyErr.message);
         }
 
         res.status(201).json({ id: result[0].insertId, message: 'Maintenance log added successfully' });

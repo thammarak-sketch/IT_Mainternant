@@ -87,13 +87,13 @@ router.post('/', async (req, res) => {
             const newAssetName = `New ${asset_type} for ${new_employee_name}`;
 
             const assetSql = `
-                INSERT INTO assets (asset_code, name, type, brand, model, status, location, purchase_date, email, is_pc, is_mobile)
-                VALUES (?, ?, ?, 'Generic', 'Generic', 'assigned', ?, ?, ?, ?, ?)
+                INSERT INTO assets (asset_code, name, type, assigned_to, brand, model, status, location, purchase_date, email, is_pc, is_mobile)
+                VALUES (?, ?, ?, ?, 'Generic', 'Generic', 'assigned', ?, ?, ?, ?, ?)
                 RETURNING id
             `;
 
             const assetResult = await db.query(assetSql, [
-                newAssetCode, newAssetName, asset_type, location || 'Office', new Date().toISOString(),
+                newAssetCode, department || 'IT', asset_type, new_employee_name, location || 'Office', new Date().toISOString(),
                 email || null, is_pc ? 1 : 0, is_mobile ? 1 : 0
             ]);
 

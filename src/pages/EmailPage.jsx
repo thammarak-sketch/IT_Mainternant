@@ -8,6 +8,12 @@ const EmailPage = () => {
     const [formData, setFormData] = useState({ email: '', fullname: '', position: '', department: '', is_pc: 0, is_mobile: 0, notes: '' });
     const [editingId, setEditingId] = useState(null);
 
+    const departments = [
+        'IT (ไอที)', 'HR (บุคคล)', 'Accounting (บัญชี)', 'Sales (การขาย)',
+        'Marketing (การตลาด)', 'Admin (ธุรการ)', 'Production (ฝ่ายผลิต)',
+        'Warehouse (คลังสินค้า)', 'Management (ผู้บริหาร)', 'Other (อื่นๆ)'
+    ];
+
     const fetchEmails = async () => {
         try {
             const { data } = await getRegistrationEmails({ search });
@@ -142,14 +148,17 @@ const EmailPage = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-bold text-gray-700 mb-1">แผนก (Department)</label>
-                                    <input
-                                        type="text"
+                                    <select
                                         name="department"
                                         value={formData.department}
                                         onChange={handleChange}
                                         className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2.5 border transition text-sm"
-                                        placeholder="เช่น IT"
-                                    />
+                                    >
+                                        <option value="">เลือกแผนก...</option>
+                                        {departments.map((dept) => (
+                                            <option key={dept} value={dept}>{dept}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 

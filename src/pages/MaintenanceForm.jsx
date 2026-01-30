@@ -25,6 +25,12 @@ const MaintenanceForm = () => {
     });
     const [hasCost, setHasCost] = useState(false);
 
+    const departments = [
+        'IT (ไอที)', 'HR (บุคคล)', 'Accounting (บัญชี)', 'Sales (การขาย)',
+        'Marketing (การตลาด)', 'Admin (ธุรการ)', 'Production (ฝ่ายผลิต)',
+        'Warehouse (คลังสินค้า)', 'Management (ผู้บริหาร)', 'Other (อื่นๆ)'
+    ];
+
     useEffect(() => {
         const fetchAssets = async () => {
             try {
@@ -138,15 +144,18 @@ const MaintenanceForm = () => {
                         </div>
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">แผนก / ฝ่าย *</label>
-                            <input
-                                type="text"
+                            <select
                                 name="department"
                                 value={formData.department}
                                 onChange={handleChange}
                                 required
                                 className="w-full border p-2 rounded"
-                                placeholder="IT, HR, Sales..."
-                            />
+                            >
+                                <option value="">เลือกแผนก...</option>
+                                {departments.map((dept) => (
+                                    <option key={dept} value={dept}>{dept}</option>
+                                ))}
+                            </select>
                         </div>
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">เบอร์โทร / Line ID</label>

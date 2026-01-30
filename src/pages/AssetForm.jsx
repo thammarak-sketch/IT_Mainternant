@@ -3,7 +3,7 @@ import SignatureCanvas from 'react-signature-canvas';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createAsset, getAsset, updateAsset, getMaintenanceLogs } from '../api';
+import { createAsset, getAsset, updateAsset, getMaintenanceLogs, getNextAssetCode } from '../api';
 import Swal from 'sweetalert2';
 
 const AssetForm = () => {
@@ -64,6 +64,17 @@ const AssetForm = () => {
             };
             fetchAsset();
             fetchHistory();
+        } else {
+            // New Mode: Fetch auto-generated asset code
+            const fetchNextCode = async () => {
+                try {
+                    const { data } = await getNextAssetCode();
+                    setFormData(prev => ({ ...prev, asset_code: data.nextCode }));
+                } catch (error) {
+                    console.error("Failed to fetch next asset code", error);
+                }
+            };
+            fetchNextCode();
         }
     }, [id, isEditMode, navigate]);
 

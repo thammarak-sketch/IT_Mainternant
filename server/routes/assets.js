@@ -35,6 +35,37 @@ const upload = multer({
     }
 });
 
+// GET next asset code (IT-YYYY-XXX)
+router.get('/next-code', async (req, res) => {
+    try {
+        const year = new Date().getFullYear();
+        const prefix = `IT-${year}-`;
+
+        const [rows] = await db.query(
+            'SELECT asset_code FROM assets WHERE asset_code LIKE ? ORDER BY asset_code DESC LIMIT 1',
+            [`${prefix}%`]
+        );
+
+        let nextNumber = 1;
+        if (rows.length > 0) {
+            const lastCode = rows[0].asset_code;
+            const parts = lastCode.split('-');
+            if (parts.length === 3) {
+                const lastNumber = parseInt(parts[2], 10);
+                if (!isNaN(lastNumber)) {
+                    nextNumber = lastNumber + 1;
+                }
+            }
+        }
+
+        const nextCode = `${prefix}${nextNumber.toString().padStart(3, '0')}`;
+        res.json({ nextCode });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to generate next asset code' });
+    }
+});
+
 // Helper for sanitizing multer inputs (formData makes everything strings)
 const sanitize = (val) => {
     if (val === 'null' || val === 'undefined' || val === '') return null;

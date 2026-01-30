@@ -35,11 +35,31 @@ const upload = multer({
     }
 });
 
-// GET next asset code (IT-YYYY-XXX)
+/**
+ * Helper to get 2-character prefix based on asset type
+ */
+const getTypePrefix = (type) => {
+    switch (type) {
+        case 'Laptop': return 'NB';
+        case 'PC': return 'PC';
+        case 'AllInOne': return 'AI';
+        case 'Monitor': return 'MT';
+        case 'Tablet': return 'TB';
+        case 'Radio': return 'RD';
+        case 'Server': return 'SV';
+        case 'Accessory': return 'AC';
+        case 'Software': return 'SW';
+        default: return 'IT';
+    }
+};
+
+// GET next asset code (Format: TYPE-YYYY-XXX)
 router.get('/next-code', async (req, res) => {
     try {
+        const { type } = req.query;
+        const typePrefix = getTypePrefix(type);
         const year = new Date().getFullYear();
-        const prefix = `IT-${year}-`;
+        const prefix = `${typePrefix}-${year}-`;
 
         const [rows] = await db.query(
             'SELECT asset_code FROM assets WHERE asset_code LIKE ? ORDER BY asset_code DESC LIMIT 1',
@@ -50,6 +70,7 @@ router.get('/next-code', async (req, res) => {
         if (rows.length > 0) {
             const lastCode = rows[0].asset_code;
             const parts = lastCode.split('-');
+            // Parts should be [PREFIX, YEAR, NUMBER]
             if (parts.length === 3) {
                 const lastNumber = parseInt(parts[2], 10);
                 if (!isNaN(lastNumber)) {
@@ -61,7 +82,7 @@ router.get('/next-code', async (req, res) => {
         const nextCode = `${prefix}${nextNumber.toString().padStart(3, '0')}`;
         res.json({ nextCode });
     } catch (err) {
-        console.error(err);
+        console.error("GET NEXT CODE ERROR:", err);
         res.status(500).json({ error: 'Failed to generate next asset code' });
     }
 });

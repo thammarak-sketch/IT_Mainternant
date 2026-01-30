@@ -12,7 +12,7 @@ const AssetForm = () => {
     const isEditMode = !!id;
 
     const departments = [
-        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก'
+        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก', 'การตลาด'
     ];
 
     const locations = [
@@ -75,11 +75,15 @@ const AssetForm = () => {
             };
             fetchAsset();
             fetchHistory();
-        } else {
-            // New Mode: Fetch auto-generated asset code
+        }
+    }, [id, isEditMode, navigate]);
+
+    // New Mode: Fetch auto-generated asset code whenever type changes
+    useEffect(() => {
+        if (!isEditMode && formData.type) {
             const fetchNextCode = async () => {
                 try {
-                    const { data } = await getNextAssetCode();
+                    const { data } = await getNextAssetCode(formData.type);
                     setFormData(prev => ({ ...prev, asset_code: data.nextCode }));
                 } catch (error) {
                     console.error("Failed to fetch next asset code", error);
@@ -87,7 +91,7 @@ const AssetForm = () => {
             };
             fetchNextCode();
         }
-    }, [id, isEditMode, navigate]);
+    }, [formData.type, isEditMode]);
 
     const fetchHistory = async () => {
         try {

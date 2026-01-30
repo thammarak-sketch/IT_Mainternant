@@ -2,6 +2,24 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db');
 
+/**
+ * Helper to get 2-character prefix based on asset type
+ */
+const getTypePrefix = (type) => {
+    switch (type) {
+        case 'Laptop': return 'NB';
+        case 'PC': return 'PC';
+        case 'AllInOne': return 'AI';
+        case 'Monitor': return 'MT';
+        case 'Tablet': return 'TB';
+        case 'Radio': return 'RD';
+        case 'Server': return 'SV';
+        case 'Accessory': return 'AC';
+        case 'Software': return 'SW';
+        default: return 'IT';
+    }
+};
+
 // GET all maintenance logs
 router.get('/', async (req, res) => {
     try {
@@ -46,10 +64,11 @@ router.post('/', async (req, res) => {
                 return res.status(400).json({ error: 'Employee Name and Asset Type are required for New Setup' });
             }
 
+            const typePrefix = getTypePrefix(asset_type);
             const currentYear = new Date().getFullYear();
-            const prefix = `IT-${currentYear}-`;
+            const prefix = `${typePrefix}-${currentYear}-`;
 
-            // Find last asset code for this year
+            // Find last asset code for this year with this prefix
             const [lastAsset] = await db.query(
                 `SELECT asset_code FROM assets WHERE asset_code LIKE ? ORDER BY id DESC LIMIT 1`,
                 [`${prefix}%`]

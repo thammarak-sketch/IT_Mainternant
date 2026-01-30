@@ -26,9 +26,7 @@ const MaintenanceForm = () => {
     const [hasCost, setHasCost] = useState(false);
 
     const departments = [
-        'IT (ไอที)', 'HR (บุคคล)', 'Accounting (บัญชี)', 'Sales (การขาย)',
-        'Marketing (การตลาด)', 'Admin (ธุรการ)', 'Production (ฝ่ายผลิต)',
-        'Warehouse (คลังสินค้า)', 'Management (ผู้บริหาร)', 'Other (อื่นๆ)'
+        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR'
     ];
 
     useEffect(() => {

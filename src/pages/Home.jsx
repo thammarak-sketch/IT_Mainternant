@@ -8,10 +8,20 @@ const Home = () => {
     const [search, setSearch] = useState('');
     const [filterType, setFilterType] = useState('');
     const [filterStatus, setFilterStatus] = useState('');
+    const [filterDept, setFilterDept] = useState('');
+
+    const departments = [
+        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR'
+    ];
 
     const fetchAssets = async () => {
         try {
-            const { data } = await getAssets({ search, type: filterType, status: filterStatus });
+            const { data } = await getAssets({
+                search,
+                type: filterType,
+                status: filterStatus,
+                name: filterDept
+            });
             setAssets(data);
         } catch (error) {
             console.error('Failed to fetch assets', error);
@@ -20,7 +30,7 @@ const Home = () => {
 
     useEffect(() => {
         fetchAssets();
-    }, [search, filterType, filterStatus]);
+    }, [search, filterType, filterStatus, filterDept]);
 
     const handleDelete = async (id) => {
         const result = await Swal.fire({
@@ -99,6 +109,16 @@ const Home = () => {
                         <option value="repair">ส่งซ่อม (Repair)</option>
                         <option value="retired">ตัดจำหน่าย (Retired)</option>
                         <option value="lost">สูญหาย (Lost)</option>
+                    </select>
+                    <select
+                        className="border p-2 rounded"
+                        value={filterDept}
+                        onChange={(e) => setFilterDept(e.target.value)}
+                    >
+                        <option value="">ทุกแผนก</option>
+                        {departments.map(dept => (
+                            <option key={dept} value={dept}>{dept}</option>
+                        ))}
                     </select>
                 </div>
 

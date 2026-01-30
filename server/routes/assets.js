@@ -68,14 +68,19 @@ router.get('/next-code', async (req, res) => {
 
 // Helper for sanitizing multer inputs (formData makes everything strings)
 const sanitize = (val) => {
-    if (val === 'null' || val === 'undefined' || val === '') return null;
+    if (val === null || val === undefined || val === 'null' || val === 'undefined' || val === '') return null;
     return val;
+};
+
+// Helper for boolean checkboxes from FormData
+const parseBool = (val) => {
+    return (val === '1' || val === 1 || val === true || val === 'true') ? 1 : 0;
 };
 
 // GET all assets
 router.get('/', async (req, res) => {
     try {
-        const { search, type, status } = req.query;
+        const { search, type, status, name } = req.query;
         let query = 'SELECT * FROM assets';
         const params = [];
         const conditions = [];
@@ -92,6 +97,10 @@ router.get('/', async (req, res) => {
         if (status) {
             conditions.push('status = ?');
             params.push(status);
+        }
+        if (name) {
+            conditions.push('name = ?');
+            params.push(name);
         }
 
         if (conditions.length > 0) {
@@ -122,7 +131,7 @@ router.get('/:id', async (req, res) => {
 // CREATE asset
 router.post('/', upload.single('image'), async (req, res) => {
     try {
-        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile } = req.body;
+        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile, software } = req.body;
 
         // Handle image path
         const image_path = req.file ? `/uploads/${req.file.filename}` : null;
@@ -142,12 +151,12 @@ router.post('/', upload.single('image'), async (req, res) => {
             status || 'available', sanitize(location), sanitize(notes), image_path,
             sanitize(req.body.assigned_to), sanitize(req.body.signature),
             sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
-            sanitize(email), is_pc ? 1 : 0, is_mobile ? 1 : 0, sanitize(req.body.software)
+            sanitize(email), parseBool(is_pc), parseBool(is_mobile), sanitize(software)
         ]);
 
         res.status(201).json({ id: result[0].insertId, message: 'Asset created successfully', image_path });
     } catch (err) {
-        console.error(err);
+        console.error("CREATE ASSET ERROR:", err);
         if (err.message && err.message.includes('UNIQUE constraint failed')) {
             return res.status(409).json({ error: 'Asset Code must be unique' });
         }
@@ -158,31 +167,33 @@ router.post('/', upload.single('image'), async (req, res) => {
 // UPDATE asset
 router.put('/:id', upload.single('image'), async (req, res) => {
     try {
-        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile } = req.body;
+        const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile, software } = req.body;
 
-        let updateImageSql = '';
+        let image_path_sql = '';
+        let image_path_val = null;
+        if (req.file) {
+            image_path_sql = ', image_path=?';
+            image_path_val = `/uploads/${req.file.filename}`;
+        }
+
+        const sql = `
+            UPDATE assets 
+            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=?, assigned_to=?, signature=?, spec=?, received_date=?, return_date=?, email=?, is_pc=?, is_mobile=?, software=? ${image_path_sql}
+            WHERE id = ?
+        `;
+
         const params = [
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
             sanitize(status), sanitize(location), sanitize(notes),
             sanitize(req.body.assigned_to), sanitize(req.body.signature),
             sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
-            sanitize(email), is_pc ? 1 : 0, is_mobile ? 1 : 0
+            sanitize(email), parseBool(is_pc), parseBool(is_mobile), sanitize(software)
         ];
 
-        if (req.file) {
-            updateImageSql = ', image_path=?';
-            params.push(`/uploads/${req.file.filename}`);
+        if (image_path_val) {
+            params.push(image_path_val);
         }
-
-        const sql = `
-            UPDATE assets 
-            SET asset_code=?, name=?, type=?, brand=?, model=?, serial_number=?, purchase_date=?, price=?, status=?, location=?, notes=?, assigned_to=?, signature=?, spec=?, received_date=?, return_date=?, email=?, is_pc=?, is_mobile=?, software=? ${updateImageSql}
-            WHERE id = ?
-        `;
-
-        params.splice(19, 0, sanitize(req.body.software)); // Insert software before updateImageSql params
-
         params.push(req.params.id);
 
         const result = await db.query(sql, params);
@@ -191,7 +202,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
 
         res.json({ message: 'Asset updated successfully' });
     } catch (err) {
-        console.error(err);
+        console.error("UPDATE ASSET ERROR:", err);
         res.status(500).json({ error: 'Failed to update asset', details: err.message });
     }
 });

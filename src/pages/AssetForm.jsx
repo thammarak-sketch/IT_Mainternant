@@ -11,6 +11,10 @@ const AssetForm = () => {
     const navigate = useNavigate();
     const isEditMode = !!id;
 
+    const departments = [
+        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR'
+    ];
+
     const [formData, setFormData] = useState({
         asset_code: '',
         name: '',
@@ -254,15 +258,18 @@ const AssetForm = () => {
                             </div>
                             <div>
                                 <label className="block text-gray-700 text-sm font-bold mb-2">แผนกที่ใช้ (Department) *</label>
-                                <input
+                                <select
                                     required
-                                    type="text"
                                     name="name"
                                     value={formData.name || ''}
                                     onChange={handleChange}
                                     className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="เช่น แผนกบัญชี, คลังสินค้า"
-                                />
+                                >
+                                    <option value="">-- เลือกแผนก --</option>
+                                    {departments.map(dept => (
+                                        <option key={dept} value={dept}>{dept}</option>
+                                    ))}
+                                </select>
                             </div>
                         </div>
 

@@ -65,8 +65,13 @@ const AssetForm = () => {
                         const baseURL = import.meta.env.MODE === 'production' ? '' : 'http://localhost:3000';
                         setPreview(baseURL + data.image_path);
                     }
-                    if (data.signature && sigPad.current) {
-                        sigPad.current.fromDataURL(data.signature);
+                    // Load signature into canvas AFTER component and ref are ready
+                    if (data.signature) {
+                        setTimeout(() => {
+                            if (sigPad.current) {
+                                sigPad.current.fromDataURL(data.signature);
+                            }
+                        }, 500);
                     }
                 } catch (error) {
                     Swal.fire('Error', 'Failed to fetch asset details', 'error');
@@ -238,23 +243,18 @@ const AssetForm = () => {
             data.append(key, value);
         }
 
-        // Append signature
+        // Append signature logic
         if (sigPad.current && !sigPad.current.isEmpty()) {
+            // New signature from pad
             data.append('signature', sigPad.current.toDataURL());
         } else if (isEditMode && formData.signature) {
-            // If not edited/cleared, keep existing? 
-            // Actually, backend update logic we wrote updates signature=? 
-            // If user didn't touch pad, isEmpty() is true.
-            // If we loaded signature via fromDataURL, isEmpty() is false? Check react-signature-canvas docs.
-            // fromDataURL makes isEmpty() false. 
-            // BUT if backend sends signature, we loaded it.
-            // If we don't re-send, backend might overwrite with null?
-            // Best to just always send current pad state.
-            // Wait, if isEmpty() is true, maybe they cleared it?
-            // If I clear, isEmpty is true.
-            // So relying on pad state is correct.
-            data.append('signature', ''); // If empty, clear it? Or ignore?
+            // Preserve existing signature if pad is empty but we have one in state (and user didn't hit clear)
+            data.append('signature', formData.signature);
+        } else {
+            // Explicitly clear if both are empty
+            data.append('signature', '');
         }
+
         if (image) {
             data.append('image', image);
         }

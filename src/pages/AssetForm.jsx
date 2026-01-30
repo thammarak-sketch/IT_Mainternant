@@ -69,9 +69,13 @@ const AssetForm = () => {
                     if (data.signature) {
                         setTimeout(() => {
                             if (sigPad.current) {
-                                sigPad.current.fromDataURL(data.signature);
+                                try {
+                                    sigPad.current.fromDataURL(data.signature);
+                                } catch (e) {
+                                    console.error("Signature load error:", e);
+                                }
                             }
-                        }, 500);
+                        }, 800); // Increased delay for stability
                     }
                 } catch (error) {
                     Swal.fire('Error', 'Failed to fetch asset details', 'error');
@@ -238,20 +242,19 @@ const AssetForm = () => {
         // Use FormData for file upload
         const data = new FormData();
         for (const key in formData) {
-            // Convert null/undefined to empty string to avoid "null" string in backend
+            // Skip signature in loop to avoid duplicate fields
+            if (key === 'signature') continue;
+
             const value = formData[key] === null || formData[key] === undefined ? '' : formData[key];
             data.append(key, value);
         }
 
-        // Append signature logic
+        // Append signature exactly once with priority: New Pad > Existing State
         if (sigPad.current && !sigPad.current.isEmpty()) {
-            // New signature from pad
             data.append('signature', sigPad.current.toDataURL());
         } else if (isEditMode && formData.signature) {
-            // Preserve existing signature if pad is empty but we have one in state (and user didn't hit clear)
             data.append('signature', formData.signature);
         } else {
-            // Explicitly clear if both are empty
             data.append('signature', '');
         }
 

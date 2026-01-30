@@ -157,7 +157,12 @@ async function setupDatabase() {
             )
         `);
 
-        console.log('Tables created successfully.');
+        // Migration: Ensure new columns exist for registration_emails
+        try { await pool.query(`ALTER TABLE registration_emails ADD COLUMN fullname VARCHAR(255)`); } catch (err) { if (err.code !== '42701') console.log("Warning (emails-fullname):", err.message); }
+        try { await pool.query(`ALTER TABLE registration_emails ADD COLUMN position VARCHAR(100)`); } catch (err) { if (err.code !== '42701') console.log("Warning (emails-position):", err.message); }
+        try { await pool.query(`ALTER TABLE registration_emails ADD COLUMN department VARCHAR(100)`); } catch (err) { if (err.code !== '42701') console.log("Warning (emails-department):", err.message); }
+
+        console.log('Tables and migrations checked successfully.');
 
         // Seed Admin
         const { rows: users } = await pool.query('SELECT * FROM users WHERE username = $1', ['admin']);

@@ -64,7 +64,21 @@ app.use((err, req, res, next) => {
     res.status(500).send('Something broke!');
 });
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+const runMigrations = require('./migrations');
+
+const startServer = async () => {
+    try {
+        // Run database migrations before starting the server
+        await runMigrations();
+
+        app.listen(port, () => {
+            console.log(`Server is running on port ${port}`);
+        });
+    } catch (err) {
+        console.error('Failed to start server:', err);
+        process.exit(1);
+    }
+};
+
+startServer();
 // Restart trigger

@@ -32,6 +32,7 @@ const getTypePrefix = (type) => {
         case 'PC': return 'PC';
         case 'AllInOne': return 'AI';
         case 'Monitor': return 'MT';
+        case 'Printer': return 'PT';
         case 'Tablet': return 'TB';
         case 'Radio': return 'RD';
         case 'Server': return 'SV';
@@ -256,8 +257,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         // }
         // params.push(req.params.id);
 
-        if (image_path_val) { // This condition checks if a new image was successfully uploaded and its path is available
-            console.log("PUT Update: Image file processed for update.");
+        if (image_path_val) {
+            params.push(image_path_val);
         }
         params.push(req.params.id);
 

@@ -29,7 +29,7 @@ const PublicReport = () => {
     });
 
     const departments = [
-        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก', 'การตลาด'
+        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก', 'การตลาด', 'คลังสินค้า'
     ];
 
     const locations = [
@@ -213,6 +213,7 @@ const PublicReport = () => {
                                                 <option value="PC">PC (คอมพิวเตอร์ตั้งโต๊ะ)</option>
                                                 <option value="AllInOne">All-in-One</option>
                                                 <option value="Monitor">Monitor (จอภาพ)</option>
+                                                <option value="Printer">Printer (เครื่องปริ้น)</option>
                                                 <option value="Tablet">Tablet</option>
                                                 <option value="Radio">วอร์ (Radio)</option>
                                                 <option value="Accessory">Accessory (อุปกรณ์เสริม)</option>

@@ -53,6 +53,7 @@ async function uploadToDrive(fileBuffer, fileName, mimeType) {
             requestBody: fileMetadata,
             media: media,
             fields: 'id, webViewLink, webContentLink',
+            supportsAllDrives: true, // Required for Shared Drives
         });
 
         const fileId = response.data.id;
@@ -64,6 +65,7 @@ async function uploadToDrive(fileBuffer, fileName, mimeType) {
                 role: 'reader',
                 type: 'anyone',
             },
+            supportsAllDrives: true, // Required for Shared Drives
         });
 
         // We return the webContentLink which can be used to display the image directly (with some tweaks or using a proxy if needed)

@@ -68,9 +68,8 @@ async function uploadToDrive(fileBuffer, fileName, mimeType) {
             supportsAllDrives: true, // Required for Shared Drives
         });
 
-        // We return the webContentLink which can be used to display the image directly (with some tweaks or using a proxy if needed)
-        // Or we return a direct link format: https://drive.google.com/uc?export=view&id=FILE_ID
-        return `https://drive.google.com/uc?export=view&id=${fileId}`;
+        // Use thumbnail link for more reliable public embedding
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
     } catch (error) {
         console.error('Google Drive Upload Error:', error);
         throw error;

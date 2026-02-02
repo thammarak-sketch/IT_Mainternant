@@ -61,7 +61,6 @@ const pool = {
                         }
                     })
                     .catch(err => {
-                        console.error(`Postgres Query Error: ${err.message}\nSQL: ${normalizedSql}`);
                         reject(err);
                     });
             } else {
@@ -69,7 +68,6 @@ const pool = {
                 if (queryType === 'SELECT' || hasReturning) {
                     db.all(sql, params, (err, rows) => {
                         if (err) {
-                            console.error(`SQLite Query Error: ${err.message}\nSQL: ${sql}`);
                             return reject(err);
                         }
                         if (hasReturning && queryType === 'INSERT') {
@@ -84,7 +82,6 @@ const pool = {
                 } else {
                     db.run(sql, params, function (err) {
                         if (err) {
-                            console.error(`SQLite Exec Error: ${err.message}\nSQL: ${sql}`);
                             return reject(err);
                         }
                         resolve([{

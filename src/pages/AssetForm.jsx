@@ -62,8 +62,12 @@ const AssetForm = () => {
                     };
                     setFormData(formattedData);
                     if (data.image_path) {
-                        const baseURL = import.meta.env.MODE === 'production' ? '' : 'http://localhost:3000';
-                        setPreview(baseURL + data.image_path);
+                        if (data.image_path.startsWith('http')) {
+                            setPreview(data.image_path);
+                        } else {
+                            const baseURL = import.meta.env.MODE === 'production' ? '' : 'http://localhost:3000';
+                            setPreview(baseURL + data.image_path);
+                        }
                     }
                     // Load signature into canvas AFTER component and ref are ready
                     if (data.signature) {

@@ -4,22 +4,10 @@ const db = require('../db');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { uploadToDrive } = require('../utils/googleDriveHelper');
 
 // Configure Multer for File Uploads
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const uploadDir = path.join(__dirname, '../public/uploads');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        cb(null, uploadDir);
-    },
-    filename: function (req, file, cb) {
-        // Create unique filename: fieldname-timestamp.ext
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-    }
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
     storage: storage,
@@ -154,8 +142,16 @@ router.post('/', upload.single('image'), async (req, res) => {
     try {
         const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile, software } = req.body;
 
-        // Handle image path
-        const image_path = req.file ? `/uploads/${req.file.filename}` : null;
+        // Handle image path - Upload to Google Drive
+        let image_path = null;
+        if (req.file) {
+            try {
+                const driveLink = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+                image_path = driveLink;
+            } catch (driveErr) {
+                console.error("Google Drive Upload failed, falling back to null:", driveErr);
+            }
+        }
 
         // Basic validation
         if (!asset_code || !name || !type) {
@@ -193,8 +189,13 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         let image_path_sql = '';
         let image_path_val = null;
         if (req.file) {
-            image_path_sql = ', image_path=?';
-            image_path_val = `/uploads/${req.file.filename}`;
+            try {
+                const driveLink = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+                image_path_sql = ', image_path=?';
+                image_path_val = driveLink;
+            } catch (driveErr) {
+                console.error("Google Drive Update failed:", driveErr);
+            }
         }
 
         const sql = `

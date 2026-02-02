@@ -614,8 +614,7 @@ const AssetForm = () => {
                 <div ref={printRef1} className="w-[210mm] h-auto p-12 font-sans box-border relative" style={{ backgroundColor: '#ffffff', color: '#000000' }}>
                     {/* Header */}
                     <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold mb-2">Asset Handover Form</h1>
-                        <h2 className="text-xl">แบบฟอร์มส่งมอบทรัพย์สิน</h2>
+                        <h1 className="text-2xl font-bold mb-2">ทะเบียนทรัพย์สิน</h1>
                         <p className="mt-2" style={{ color: '#4b5563' }}>Date / วันที่: {new Date().toLocaleDateString('th-TH')}</p>
                     </div>
 

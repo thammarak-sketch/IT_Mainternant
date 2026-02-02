@@ -269,6 +269,7 @@ const AssetForm = () => {
         }
 
         if (image) {
+            console.log("Submitting with new image file:", image.name);
             data.append('image', image);
         }
 

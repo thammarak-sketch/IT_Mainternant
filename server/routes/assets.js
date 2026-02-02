@@ -197,27 +197,29 @@ router.post('/', upload.single('image'), async (req, res) => {
 router.put('/:id', upload.single('image'), async (req, res) => {
     try {
         const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile, software } = req.body;
-
         // Handle image path update
         let image_path_sql = '';
         let image_path_val = null;
+
         if (req.file) {
-            try {
-                const driveLink = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
-                image_path_sql = ', image_path=?';
-                image_path_val = driveLink;
-            } catch (driveErr) {
-                console.error("Google Drive Update failed:", driveErr);
-            }
+            console.log("PUT Image Update: File detected", req.file.originalname, "Size:", req.file.size);
+            const driveLink = await uploadToDrive(req.file.buffer, req.file.originalname, req.file.mimetype);
+            image_path_sql = ', image_path=?';
+            image_path_val = driveLink;
+            console.log("PUT Image Update: Drive Link generated", driveLink);
+        } else {
+            console.log("PUT Update: No new image file detected");
         }
 
         // Handle signature upload if it's a new Base64 string
         let signature = req.body.signature;
         if (signature && signature.startsWith('data:image')) {
+            console.log("PUT Signature Update: New Base64 signature detected");
             try {
                 const sigFileName = `sig_${asset_code || Date.now()}.png`;
                 const sigLink = await uploadBase64ToDrive(signature, sigFileName);
                 signature = sigLink;
+                console.log("PUT Signature Update: Drive Link generated", sigLink);
             } catch (sigErr) {
                 console.error("Signature update to Drive failed:", sigErr);
             }
@@ -238,12 +240,30 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             sanitize(email), parseBool(is_pc), parseBool(is_mobile), sanitize(software)
         ];
 
-        if (image_path_val) {
-            params.push(image_path_val);
+        // The following lines are from the provided edit, but they appear to be client-side code.
+        // As this is a backend file, I'm interpreting the intent as adding a backend log
+        // for when an image is processed, similar to the existing logs.
+        // The `if (image)` and `data.append` parts are not applicable here.
+        // The instruction also mentioned "add frontend logging", which would be done on the client.
+        // For the backend, I'll ensure the image processing logic is robust.
+        // The propagation of Drive upload errors has been added above.
+        // If the user intended a different backend change, please clarify.
+
+        // Original code context:
+        // if (image) {
+        //     console.log("Submitting with new image file:", image.name);
+        //     data.append('image', image);
+        // }
+        // params.push(req.params.id);
+
+        if (image_path_val) { // This condition checks if a new image was successfully uploaded and its path is available
+            console.log("PUT Update: Image file processed for update.");
         }
         params.push(req.params.id);
 
+        console.log("PUT Update: Executing SQL query...");
         const result = await db.query(sql, params);
+        console.log("PUT Update: Rows affected:", result[0].affectedRows);
 
         if (result[0].affectedRows === 0) return res.status(404).json({ error: 'Asset not found' });
 

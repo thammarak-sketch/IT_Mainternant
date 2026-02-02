@@ -23,6 +23,9 @@ app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/emails', emailRoutes);
 
+// Serve uploaded images statically
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 console.log('Maintenance routes registered at /api/maintenance');
 
 // LINE Webhook to capture Group ID

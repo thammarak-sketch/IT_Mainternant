@@ -178,7 +178,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
             status || 'available', sanitize(location), sanitize(notes), image_path,
-            sanitize(req.body.assigned_to), sanitize(signature),
+            sanitize(req.body.assigned_to), signature,
             sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
             sanitize(email), parseBool(is_pc), parseBool(is_mobile), sanitize(software)
         ]);
@@ -233,7 +233,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
             sanitize(status), sanitize(location), sanitize(notes),
-            sanitize(req.body.assigned_to), sanitize(signature),
+            sanitize(req.body.assigned_to), signature,
             sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
             sanitize(email), parseBool(is_pc), parseBool(is_mobile), sanitize(software)
         ];

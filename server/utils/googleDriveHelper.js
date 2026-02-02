@@ -76,4 +76,27 @@ async function uploadToDrive(fileBuffer, fileName, mimeType) {
     }
 }
 
-module.exports = { uploadToDrive };
+/**
+ * Uploads a Base64 image string to Google Drive
+ * @param {string} base64String 
+ * @param {string} fileName 
+ * @returns {Promise<string>} The thumbnail link of the uploaded file
+ */
+async function uploadBase64ToDrive(base64String, fileName) {
+    if (!credentials) {
+        throw new Error('Google Drive credentials not configured');
+    }
+
+    // Extract mime type and base64 data
+    const matches = base64String.match(/^data:([A-Za-z-+/]+);base64,(.+)$/);
+    if (!matches || matches.length !== 3) {
+        throw new Error('Invalid base64 string');
+    }
+
+    const mimeType = matches[1];
+    const buffer = Buffer.from(matches[2], 'base64');
+
+    return uploadToDrive(buffer, fileName, mimeType);
+}
+
+module.exports = { uploadToDrive, uploadBase64ToDrive };

@@ -385,6 +385,23 @@ const Maintenance = () => {
         doc.save("Maintenance_Report.pdf");
     };
 
+    const toBase64 = (url) => {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.onerror = reject;
+            img.src = url;
+        });
+    };
+
     const handleExportIndividualPDF = async (log) => {
         const doc = new jsPDF();
         try {
@@ -432,7 +449,11 @@ const Maintenance = () => {
             const finalY = doc.lastAutoTable.finalY + 10;
             doc.text("ลายเซ็นผู้แจ้งซ่อม:", 20, finalY);
             try {
-                doc.addImage(log.signature, 'PNG', 20, finalY + 5, 50, 25);
+                let sigData = log.signature;
+                if (sigData.startsWith('http')) {
+                    sigData = await toBase64(sigData);
+                }
+                doc.addImage(sigData, 'PNG', 20, finalY + 5, 50, 25);
                 if (log.signer_name) {
                     doc.text(`(${log.signer_name})`, 20, finalY + 35);
                 }

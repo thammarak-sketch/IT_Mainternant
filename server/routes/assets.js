@@ -4,7 +4,7 @@ const db = require('../db');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { uploadToDrive } = require('../utils/googleDriveHelper');
+const { uploadToDrive, uploadBase64ToDrive } = require('../utils/googleDriveHelper');
 
 // Configure Multer for File Uploads
 const storage = multer.memoryStorage();
@@ -153,6 +153,18 @@ router.post('/', upload.single('image'), async (req, res) => {
             }
         }
 
+        // Handle signature - Upload to Google Drive if it's a new signature (Base64)
+        let signature = req.body.signature;
+        if (signature && signature.startsWith('data:image')) {
+            try {
+                const sigFileName = `sig_${asset_code || Date.now()}.png`;
+                const sigLink = await uploadBase64ToDrive(signature, sigFileName);
+                signature = sigLink;
+            } catch (sigErr) {
+                console.error("Signature upload to Drive failed:", sigErr);
+            }
+        }
+
         // Basic validation
         if (!asset_code || !name || !type) {
             return res.status(400).json({ error: 'Asset Code, Name, and Type are required' });
@@ -166,7 +178,7 @@ router.post('/', upload.single('image'), async (req, res) => {
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
             status || 'available', sanitize(location), sanitize(notes), image_path,
-            sanitize(req.body.assigned_to), sanitize(req.body.signature),
+            sanitize(req.body.assigned_to), sanitize(signature),
             sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
             sanitize(email), parseBool(is_pc), parseBool(is_mobile), sanitize(software)
         ]);
@@ -186,6 +198,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
     try {
         const { asset_code, name, type, brand, model, serial_number, purchase_date, price, status, location, notes, spec, received_date, return_date, email, is_pc, is_mobile, software } = req.body;
 
+        // Handle image path update
         let image_path_sql = '';
         let image_path_val = null;
         if (req.file) {
@@ -195,6 +208,18 @@ router.put('/:id', upload.single('image'), async (req, res) => {
                 image_path_val = driveLink;
             } catch (driveErr) {
                 console.error("Google Drive Update failed:", driveErr);
+            }
+        }
+
+        // Handle signature upload if it's a new Base64 string
+        let signature = req.body.signature;
+        if (signature && signature.startsWith('data:image')) {
+            try {
+                const sigFileName = `sig_${asset_code || Date.now()}.png`;
+                const sigLink = await uploadBase64ToDrive(signature, sigFileName);
+                signature = sigLink;
+            } catch (sigErr) {
+                console.error("Signature update to Drive failed:", sigErr);
             }
         }
 
@@ -208,7 +233,7 @@ router.put('/:id', upload.single('image'), async (req, res) => {
             sanitize(asset_code), sanitize(name), sanitize(type), sanitize(brand), sanitize(model),
             sanitize(serial_number), sanitize(purchase_date), sanitize(price),
             sanitize(status), sanitize(location), sanitize(notes),
-            sanitize(req.body.assigned_to), sanitize(req.body.signature),
+            sanitize(req.body.assigned_to), sanitize(signature),
             sanitize(req.body.spec), sanitize(req.body.received_date), sanitize(req.body.return_date),
             sanitize(email), parseBool(is_pc), parseBool(is_mobile), sanitize(software)
         ];

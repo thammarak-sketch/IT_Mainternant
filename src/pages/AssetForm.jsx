@@ -74,12 +74,18 @@ const AssetForm = () => {
                         setTimeout(() => {
                             if (sigPad.current) {
                                 try {
-                                    sigPad.current.fromDataURL(data.signature);
+                                    if (data.signature.startsWith('http')) {
+                                        // Load from URL (requires CORS support if thumbnail link)
+                                        // signature-pad's fromDataURL also works with URLs
+                                        sigPad.current.fromDataURL(data.signature);
+                                    } else {
+                                        sigPad.current.fromDataURL(data.signature);
+                                    }
                                 } catch (e) {
                                     console.error("Signature load error:", e);
                                 }
                             }
-                        }, 1200); // Increased delay for tablet/mobile stability
+                        }, 1200);
                     }
                 } catch (error) {
                     Swal.fire('Error', 'Failed to fetch asset details', 'error');

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../db');
+const { uploadBase64ToDrive } = require('../utils/googleDriveHelper');
 
 /**
  * Helper to get 2-character prefix based on asset type
@@ -195,9 +196,21 @@ router.put('/:id', async (req, res) => {
             updates.push('completed_at = ?');
             params.push(req.body.completed_at);
         }
-        if (req.body.signature) {
+        let signature = req.body.signature;
+        if (signature && signature.startsWith('data:image')) {
+            try {
+                // Fetch asset_code for the file name if possible, otherwise use ID
+                const sigFileName = `sig_maint_${req.params.id || Date.now()}.png`;
+                const sigLink = await uploadBase64ToDrive(signature, sigFileName);
+                signature = sigLink;
+            } catch (sigErr) {
+                console.error("Signature update to Drive failed:", sigErr);
+            }
+        }
+
+        if (signature) {
             updates.push('signature = ?');
-            params.push(req.body.signature);
+            params.push(signature);
         }
         if (req.body.repair_method) {
             updates.push('repair_method = ?');

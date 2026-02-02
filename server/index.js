@@ -1,6 +1,7 @@
 const express = require('express'); // Restart trigger
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const pool = require('./db');
 
 dotenv.config();
@@ -52,7 +53,6 @@ app.post('/api/webhook', (req, res) => {
 // });
 
 // Serve static files from the React app
-const path = require('path');
 app.use(express.static(path.join(__dirname, '../dist')));
 
 // The "catchall" handler: for any request that doesn't

@@ -70,23 +70,8 @@ const AssetForm = () => {
                         }
                     }
                     // Load signature into canvas AFTER component and ref are ready
-                    if (data.signature) {
-                        setTimeout(() => {
-                            if (sigPad.current) {
-                                try {
-                                    if (data.signature.startsWith('http')) {
-                                        // Load from URL (requires CORS support if thumbnail link)
-                                        // signature-pad's fromDataURL also works with URLs
-                                        sigPad.current.fromDataURL(data.signature);
-                                    } else {
-                                        sigPad.current.fromDataURL(data.signature);
-                                    }
-                                } catch (e) {
-                                    console.error("Signature load error:", e);
-                                }
-                            }
-                        }, 1200);
-                    }
+                    // Signature loading removed to prevent canvas tainting (Cross-Origin issues)
+                    // We will display existing signature as <img> instead
                 } catch (error) {
                     Swal.fire('Error', 'Failed to fetch asset details', 'error');
                     navigate('/');
@@ -190,7 +175,6 @@ const AssetForm = () => {
             const html2canvasOptions = {
                 scale: 2,
                 useCORS: true,
-                allowTaint: true,
                 logging: false,
                 windowWidth: 794,
                 onclone: (clonedDoc) => {
@@ -514,18 +498,34 @@ const AssetForm = () => {
 
                         <div>
                             <label className="block text-gray-700 text-sm font-bold mb-2">ลายเซ็นผู้รับมอบ (Signature)</label>
-                            <div className="border rounded-lg p-2 bg-gray-50 inline-block">
-                                <SignatureCanvas
-                                    ref={sigPad}
-                                    penColor="black"
-                                    canvasProps={{ width: 400, height: 150, className: 'sigCanvas border bg-white rounded' }}
-                                />
-                            </div>
-                            <div className="mt-1">
-                                <button type="button" onClick={clearSignature} className="text-red-500 text-sm underline">
-                                    ลบ/เซ็นใหม่
-                                </button>
-                            </div>
+                            {formData.signature && isEditMode ? (
+                                <div className="border rounded-lg p-2 bg-gray-50 inline-block">
+                                    <div className="bg-white rounded border w-[400px] h-[150px] flex items-center justify-center overflow-hidden">
+                                        <img src={cleanUrl(formData.signature)} alt="Existing Signature" className="max-w-full max-h-full" style={{ maxHeight: '150px', objectFit: 'contain' }} />
+                                    </div>
+                                    <div className="mt-2 text-center">
+                                        <button type="button" onClick={() => setFormData(prev => ({ ...prev, signature: '' }))} className="text-red-500 text-sm underline hover:text-red-700">
+                                            <i className="fa-solid fa-rotate-right mr-1"></i>
+                                            เซ็นใหม่ (Resign)
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div>
+                                    <div className="border rounded-lg p-2 bg-gray-50 inline-block">
+                                        <SignatureCanvas
+                                            ref={sigPad}
+                                            penColor="black"
+                                            canvasProps={{ width: 400, height: 150, className: 'sigCanvas border bg-white rounded' }}
+                                        />
+                                    </div>
+                                    <div className="mt-1">
+                                        <button type="button" onClick={clearSignature} className="text-gray-500 text-sm underline hover:text-gray-700">
+                                            ล้างลายเซ็น (Clear)
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
 
                         <div>
@@ -635,7 +635,7 @@ const AssetForm = () => {
                     <div className="flex gap-6 mb-8 items-start">
                         {preview ? (
                             <div className="w-40 h-40 flex-shrink-0 border rounded flex items-center justify-center overflow-hidden" style={{ borderColor: '#d1d5db', backgroundColor: '#f3f4f6' }}>
-                                <img src={cleanUrl(preview)} alt="Asset" className="w-full h-full object-cover" />
+                                <img src={cleanUrl(preview)} alt="Asset" crossOrigin="anonymous" className="w-full h-full object-cover" />
                             </div>
                         ) : (
                             <div className="w-40 h-40 flex-shrink-0 border rounded flex items-center justify-center" style={{ borderColor: '#d1d5db', backgroundColor: '#f3f4f6', color: '#9ca3af' }}>
@@ -746,9 +746,9 @@ const AssetForm = () => {
                         <div className="mt-8 flex flex-col items-center w-64">
                             <div className="h-32 w-full border border-dashed flex items-center justify-center mb-2 overflow-hidden" style={{ borderColor: '#9ca3af' }}>
                                 {formData.signature ? (
-                                    <img src={cleanUrl(formData.signature)} alt="Signature" className="object-contain h-full w-full" />
+                                    <img src={cleanUrl(formData.signature)} alt="Signature" crossOrigin="anonymous" className="object-contain h-full w-full" />
                                 ) : (sigPad.current && typeof sigPad.current.isEmpty === 'function' && !sigPad.current.isEmpty()) ? (
-                                    <img src={cleanUrl(sigPad.current.toDataURL())} alt="Current Sig" className="object-contain h-full w-full" />
+                                    <img src={cleanUrl(sigPad.current.toDataURL())} alt="Current Sig" crossOrigin="anonymous" className="object-contain h-full w-full" />
                                 ) : (
                                     <span className="text-sm" style={{ color: '#9ca3af' }}>Signature / ลายเซ็น</span>
                                 )}

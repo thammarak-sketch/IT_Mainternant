@@ -190,6 +190,7 @@ const AssetForm = () => {
             const html2canvasOptions = {
                 scale: 2,
                 useCORS: true,
+                allowTaint: true,
                 logging: false,
                 windowWidth: 794,
                 onclone: (clonedDoc) => {

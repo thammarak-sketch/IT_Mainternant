@@ -29,7 +29,7 @@ const PublicReport = () => {
     });
 
     const departments = [
-        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก', 'การตลาด', 'คลังสินค้า'
+        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก', 'การตลาด', 'คลังสินค้า', 'รปภ', 'จป', 'ขนส่ง'
     ];
 
     const locations = [
@@ -266,7 +266,7 @@ const PublicReport = () => {
                                         type="text"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                        placeholder="พิมพ์รหัสเครื่อง (Asset Code) หรือ ชื่อรุ่น..."
+                                        placeholder="รหัสเครื่อง หรือ ชื่อผู้ใช้"
                                         className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-500 mb-2"
                                     />
 

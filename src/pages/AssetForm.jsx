@@ -12,7 +12,7 @@ const AssetForm = () => {
     const isEditMode = !!id;
 
     const departments = [
-        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก', 'การตลาด', 'คลังสินค้า'
+        'IT', 'จัดซื้อ', 'แอดมินขาย', 'ช่าง', 'QC', 'ผลิต', 'planning', 'ผู้บริหาร', 'HR', 'บัญชี', 'การเงิน', 'R&D', 'ผู้จัดการ', 'กราฟฟิก', 'การตลาด', 'คลังสินค้า', 'รปภ', 'จป', 'ขนส่ง'
     ];
 
     const locations = [
@@ -86,6 +86,7 @@ const AssetForm = () => {
     useEffect(() => {
         if (!isEditMode && formData.type) {
             const fetchNextCode = async () => {
+                console.log("Fetching next code for type:", formData.type);
                 try {
                     const { data } = await getNextAssetCode(formData.type);
                     setFormData(prev => ({ ...prev, asset_code: data.nextCode }));

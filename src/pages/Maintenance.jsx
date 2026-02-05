@@ -478,6 +478,40 @@ const Maintenance = () => {
 
     return (
         <div className="">
+            {/* Summary Statistics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div className="bg-white p-4 rounded-lg shadow border-l-4 border-blue-500">
+                    <div className="text-gray-500 text-xs uppercase font-bold">งานซ่อมทั้งหมด (Total)</div>
+                    <div className="text-2xl font-bold text-gray-800 mt-1">{logs.length}</div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow border-l-4 border-green-500">
+                    <div className="text-gray-500 text-xs uppercase font-bold">เสร็จสิ้น (Completed)</div>
+                    <div className="text-2xl font-bold text-gray-800 mt-1 bg-green-50 text-green-700 inline-block px-2 rounded">
+                        {logs.filter(l => l.status === 'completed').length}
+                    </div>
+                </div>
+                <div className="bg-white p-4 rounded-lg shadow border-l-4 border-indigo-500">
+                    <div className="text-gray-500 text-xs uppercase font-bold">เวลาเฉลี่ย (Avg Time)</div>
+                    <div className="text-2xl font-bold text-gray-800 mt-1">
+                        {(() => {
+                            const completedLogs = logs.filter(l => l.status === 'completed' && l.started_at && l.completed_at);
+                            if (completedLogs.length === 0) return '0 นาที';
+
+                            const totalMs = completedLogs.reduce((acc, log) => {
+                                return acc + (new Date(log.completed_at) - new Date(log.started_at));
+                            }, 0);
+
+                            const avgMins = totalMs / completedLogs.length / 60000;
+                            const hours = Math.floor(avgMins / 60);
+                            const minutes = Math.floor(avgMins % 60);
+
+                            if (hours > 0) return `${hours} ชม. ${minutes} น.`;
+                            return `${minutes} นาที`;
+                        })()}
+                    </div>
+                </div>
+            </div>
+
             <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 <h1 className="text-2xl md:text-3xl font-bold text-gray-800">รายการแจ้งซ่อม (Maintenance)</h1>
                 <div className="flex flex-wrap gap-2 justify-center">

@@ -45,6 +45,7 @@ const getTypePrefix = (type) => {
 // GET next asset code (Format: TYPE-YYYY-XXX)
 router.get('/next-code', async (req, res) => {
     try {
+        console.log("GET /next-code request received for type:", req.query.type);
         const { type } = req.query;
         const typePrefix = getTypePrefix(type);
         const year = new Date().getFullYear();
